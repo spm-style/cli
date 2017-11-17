@@ -1,0 +1,21 @@
+{
+  "name": "spm",
+  "version": "1.0.0",
+  "style": "scss",
+  "main": "index.scss",
+  "scripts": {
+    "test": "echo \"Error = no test specified\" && exit 1"
+  },
+  "author": "anonymous",
+  "licence": "IST",
+  "keywords": [
+    ""
+  ],
+  "description": "",
+  "dependencies": {
+    "toto": "1.0.0",
+    "tata": "1.0.0",
+    "tutu": "1.0.0",
+    "machin": "2.3.4"
+  }
+}

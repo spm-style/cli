@@ -1,0 +1,85 @@
+{
+  "_args": [
+    [
+      {
+        "raw": ".",
+        "scope": null,
+        "escapedName": null,
+        "name": null,
+        "rawSpec": ".",
+        "spec": "/Users/ehrhart/Documents/testing/spm/adrien/spm",
+        "type": "directory"
+      },
+      "/Users/ehrhart/Documents/testing/spm/adrien/spm"
+    ]
+  ],
+  "_from": "../../Users/ehrhart/Documents/testing/spm/adrien/spm",
+  "_id": "spm@1.0.0",
+  "_inCache": true,
+  "_location": "/spm",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": ".",
+    "scope": null,
+    "escapedName": null,
+    "name": null,
+    "rawSpec": ".",
+    "spec": "/Users/ehrhart/Documents/testing/spm/adrien/spm",
+    "type": "directory"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "file:../../Users/ehrhart/Documents/testing/spm/adrien/spm",
+  "_shasum": "74926e36c4cdfc9d1c94e6050ea2354e3f29129c",
+  "_shrinkwrap": null,
+  "_spec": ".",
+  "_where": "/Users/ehrhart/Documents/testing/spm/adrien/spm",
+  "author": {
+    "name": "h&a"
+  },
+  "bin": {
+    "spm": "./index.js"
+  },
+  "dependencies": {
+    "chalk": "^2.0.1",
+    "clear": "0.0.1",
+    "color-convert": "^1.9.0",
+    "colors": "^1.1.2",
+    "commander": "^2.11.0",
+    "figlet": "^1.2.0",
+    "inquirer": "^3.1.1",
+    "joi": "^10.6.0",
+    "node-sass": "^4.5.3",
+    "prompt": "^1.0.0",
+    "request": "^2.81.0",
+    "tar.gz": "^1.0.5"
+  },
+  "description": "little surprise for Lucas",
+  "devDependencies": {},
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "gitHead": "6df26a041373415047e6f68e1bfd690a5c0a9bd4",
+  "keywords": [
+    "style",
+    "spm",
+    "classe",
+    "elegance"
+  ],
+  "license": "ISC",
+  "main": "index.js",
+  "name": "spm",
+  "optionalDependencies": {},
+  "readme": "inquirer:\n- customisation des balises '?' '>>' pour les prompts et les validate\n- changement de l'objet de configuration en cours de prompt (par exemple en fonction des valeurs précédentes)\n    - Arbre de décision\n\n=> implémentation d'une fonction change() (similaire à when et filter)\n\nspm use toto -g (inclure dans le fichier principal du projet) : dégager partout ailleurs (quitte à faire une option --noclean)\n\noption d'autocomplétion ()\n\nnpm install :\n\n(1) Présence d'un package-spm.json : function checkPackage\n|__Non : 'byebye' ~ erreur si appel projet ou 'le module `<nomdumodule>` est vérolé, réinstaller le module' ~ warning (?)\n|__Oui : Y a-t-il des dépendences (normales et dev) dans package-spm.json ?\n    |__Non: Rien à faire\n    |__Oui: Pour chaque dépendence, vérifier si le package + version existe dans spm_modules\n        |__Oui: 'package already exists' (pas de sécurité pour les sous-dépendences)\n        |__Non: vérifier si le package est là en global\n            |__Oui: 'package already exists in global'\n            |__Non: télécharger la dépendence et relancer (1) sur son package-spm.json\n\nnpm install `<module>`\n\ncréee une arborescence des modules à installer pour gérer ces dépendences\n\nmon-app\n-> package-spm.json\n-> spm_modules\n-> package.json\n-> node_modules\n...\n\nREGISTRY:\n\n@toto\n    /select_input\n        - v1.0.0\n            + tata_input v1.0.0\n            + tutu_checkbox v1.0.0\n        - v1.0.1\n            + tata_input v1.0.0\n            + tutu_checkbox v2.0.0\n\n@tata\n    /input\n        - v1.0.0\n            + tutu_checkbox v1.0.0\n\n@tutu\n    /checkbox\n        - v1.0.0\n            + NONE\n        - v2.0.0\n            + NONE\n\nATTENTION AUX DEPENDANCES CROISEES (selon versions ?)\n\nglobal: ajout dans global\npas global: ajout dans local\nsave: ajout dans package.json\n\n\n",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.start-to-up.com/spm/cli.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.0.0"
+}

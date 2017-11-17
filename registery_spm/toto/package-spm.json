@@ -1,0 +1,15 @@
+{
+  "name": "toto",
+  "version": "2.8.8",
+  "style": "scss",
+  "main": "index.scss",
+  "scripts": {
+    "test": "echo \"Error = no test specified\" && exit 1"
+  },
+  "author": "anonymous",
+  "licence": "IST",
+  "keywords": [
+    ""
+  ],
+  "description": ""
+}
