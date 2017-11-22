@@ -57,6 +57,7 @@
   "description": "little surprise for Lucas",
   "devDependencies": {
     "coveralls": "^3.0.0",
+    "istanbul": "^0.4.5",
     "mocha-lcov-reporter": "^1.3.0"
   },
   "directories": {
@@ -82,6 +83,7 @@
   },
   "scripts": {
     "test": "mocha",
+    "cover": "istanbul cover --no-default-excludes --report=text  -x '**/node_modules/**' _mocha test/*",
     "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls"
   },
   "version": "1.0.0"
