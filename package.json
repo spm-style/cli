@@ -56,7 +56,10 @@
     "tar.gz": "^1.0.5"
   },
   "description": "little surprise for Lucas",
-  "devDependencies": {},
+  "devDependencies": {
+    "coveralls": "^3.0.0",
+    "mocha-lcov-reporter": "^1.3.0"
+  },
   "directories": {
     "lib": "lib",
     "test": "test"
@@ -79,7 +82,8 @@
     "url": "https://gitlab.start-to-up.com/spm/cli.git"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls"
   },
   "version": "1.0.0"
 }

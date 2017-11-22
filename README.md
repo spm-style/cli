@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/spm-style/cli.svg?branch=master)](https://travis-ci.org/spm-style/cli)
+[![Coverage Status](https://coveralls.io/repos/github/spm-style/cli/badge.svg?branch=master)](https://coveralls.io/github/spm-style/cli?branch=master)
+[![NSP Status](https://nodesecurity.io/orgs/spm/projects/2b6bfe3f-87f6-4e9d-b73a-1b872cbbb7da/badge)](https://nodesecurity.io/orgs/spm/projects/2b6bfe3f-87f6-4e9d-b73a-1b872cbbb7da)
+
 # spm
 
 ## How does spm work ?
@@ -55,6 +59,8 @@ apollo_form-elem@1.2.7
 WARNING: apollo_form-elem@1.2.7 not installed - already existing
 ```
 
+If no argument is specified, spm will install all project's dependencies.
+
 However, you can precise that the package has to be installed locally with option `--local` or `-l`.
 ```shell
 $ spm i apollo_onOff -l
@@ -95,10 +101,23 @@ $ spm i apollo_onOff -f
 
 ## Generating a customized package
 
-After installing a package, you may want to customize it. For this purpose, you can use the `spm generate` or short `spm g` CLI command.
+After installing a package, you may want to customize it and generate a new package from it. For this purpose, you can use the `spm generate` or short `spm g` CLI command.
 ```shell
-$ spm g apollo_onOff
+$ spm g apollo_onOff myNewPackage
 ```
+Here, we are specifying the creation of a new instance of apollo_onOff package that we call myNewPackage. spm opens a prompt to ask for the value of all customizable variables :
+```shell
+$ spm g apollo_onOff myNewPackage
+? value of adrien_onOff-offColor (red)
+```
+The default value of the variable is precised between parenthesis, so pressing the enter key will select the default value. 
+```shell
+$ spm g apollo_onOff myNewPackage
+? value of adrien_onOff-offColor red
+? value of adrien_onOff-onColor (blue) green
+```
+
+
 
 ## Using a package in your project
 
