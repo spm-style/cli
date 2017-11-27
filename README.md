@@ -2,7 +2,9 @@
 [![Coverage Status](https://coveralls.io/repos/github/spm-style/cli/badge.svg?branch=master)](https://coveralls.io/github/spm-style/cli?branch=master)
 [![dependencies](https://david-dm.org/spm-style/cli.svg)](https://david-dm.org/spm-style/cli)
 [![NSP Status](https://nodesecurity.io/orgs/spm/projects/2b6bfe3f-87f6-4e9d-b73a-1b872cbbb7da/badge)](https://nodesecurity.io/orgs/spm/projects/2b6bfe3f-87f6-4e9d-b73a-1b872cbbb7da)
+[![Known Vulnerabilities](https://snyk.io/test/github/spm-style/cli/badge.svg)](https://snyk.io/test/github/spm-style/cli)
 [![documentation](https://inch-ci.org/github/spm-style/cli.svg)](https://inch-ci.org/github/spm-style/cli)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 # spm
 
