@@ -1,43 +1,4 @@
 {
-  "_args": [
-    [
-      {
-        "raw": ".",
-        "scope": null,
-        "escapedName": null,
-        "name": null,
-        "rawSpec": ".",
-        "spec": "/Users/ehrhart/Documents/testing/spm/adrien/spm",
-        "type": "directory"
-      },
-      "/Users/ehrhart/Documents/testing/spm/adrien/spm"
-    ]
-  ],
-  "_from": "../../Users/ehrhart/Documents/testing/spm/adrien/spm",
-  "_id": "spm@1.0.0",
-  "_inCache": true,
-  "_location": "/spm",
-  "_phantomChildren": {},
-  "_requested": {
-    "raw": ".",
-    "scope": null,
-    "escapedName": null,
-    "name": null,
-    "rawSpec": ".",
-    "spec": "/Users/ehrhart/Documents/testing/spm/adrien/spm",
-    "type": "directory"
-  },
-  "_requiredBy": [
-    "#USER"
-  ],
-  "_resolved": "file:../../Users/ehrhart/Documents/testing/spm/adrien/spm",
-  "_shasum": "74926e36c4cdfc9d1c94e6050ea2354e3f29129c",
-  "_shrinkwrap": null,
-  "_spec": ".",
-  "_where": "/Users/ehrhart/Documents/testing/spm/adrien/spm",
-  "author": {
-    "name": "h&a"
-  },
   "bin": {
     "spm": "./index.js"
   },
@@ -74,13 +35,13 @@
   ],
   "license": "ISC",
   "main": "index.js",
-  "name": "spm",
+  "author": "boblee",
+  "name": "@spm/alpha",
   "optionalDependencies": {},
-  "readme": "",
-  "readmeFilename": "README.md",
+  "readme": "README.md",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.start-to-up.com/spm/cli.git"
+    "url": "https://github.com/spm-style/cli"
   },
   "scripts": {
     "test": "mocha",
@@ -88,5 +49,5 @@
     "cover": "istanbul cover --no-default-excludes --report=text  -x '**/node_modules/**' _mocha test/*",
     "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls"
   },
-  "version": "1.0.0"
+  "version": "0.0.1"
 }
