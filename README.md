@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/spm-style/cli.svg?branch=master)](https://travis-ci.org/spm-style/cli)
-[![Coverage Status](https://coveralls.io/repos/github/spm-style/cli/badge.svg?branch=master)](https://coveralls.io/github/spm-style/cli?branch=master)
+<!-- [![Build Status](https://travis-ci.org/spm-style/cli.svg?branch=master)](https://travis-ci.org/spm-style/cli)
+[![Coverage Status](https://coveralls.io/repos/github/spm-style/cli/badge.svg?branch=master)](https://coveralls.io/github/spm-style/cli?branch=master) -->
 [![NSP Status](https://nodesecurity.io/orgs/spm/projects/2b6bfe3f-87f6-4e9d-b73a-1b872cbbb7da/badge)](https://nodesecurity.io/orgs/spm/projects/2b6bfe3f-87f6-4e9d-b73a-1b872cbbb7da)
 [![dependencies](https://david-dm.org/spm-style/cli.svg)](https://david-dm.org/spm-style/cli)
 [![Known Vulnerabilities](https://snyk.io/test/github/spm-style/cli/badge.svg)](https://snyk.io/test/github/spm-style/cli)
@@ -10,7 +10,7 @@
 
 spm is a style package manager. It makes it easy to find inspiration, maintain and share multiple graphical components and show off what you're capable of.
 
-You can browse among many elements based on their device compatibility, check for updates, and use the same code over and over without actually storing it, FOR FREE.
+You can browse among many elements based on their device compatibility, check for updates, and use the same code over and over without actually storing it, *FOR FREE*.
 
 spm empowers your projects by allowing collaborators to work together very easily. Moreover, you can sharpen your performances through community's contribution. Of course, if you wish, your code can remain private hosted either by ourselves or within your organization.
 

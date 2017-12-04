@@ -23,3 +23,7 @@ for (let action in Lib) {
 }
 
 Program.parse(process.argv)
+
+if (Program.args.length === 0) {
+  Program.help()
+}
