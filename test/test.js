@@ -8,7 +8,7 @@ let CONST = require('../lib/const.js')
 let Fs = require('fs')
 let inquirer = require('inquirer')
 
-let intercept = require('intercept-stdout')
+// let intercept = require('intercept-stdout')
 
 let keys = {
   up: '\u001b[A',
