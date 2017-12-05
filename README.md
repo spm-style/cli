@@ -1,5 +1,6 @@
 <!-- [![Build Status](https://travis-ci.org/spm-style/cli.svg?branch=master)](https://travis-ci.org/spm-style/cli)
-[![Coverage Status](https://coveralls.io/repos/github/spm-style/cli/badge.svg?branch=master)](https://coveralls.io/github/spm-style/cli?branch=master) -->
+[![Coverage Status](https://coveralls.io/repos/github/spm-style/cli/badge.svg?branch=master)](https://coveralls.io/github/spm-style/cli?branch=master) [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fspm-style%2Fcli.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fspm-style%2Fcli?ref=badge_shield)
+-->
 [![NSP Status](https://nodesecurity.io/orgs/spm/projects/62af19a4-3d64-4da0-9c22-0255d20d7e57/badge)](https://nodesecurity.io/orgs/spm/projects/62af19a4-3d64-4da0-9c22-0255d20d7e57)
 [![dependencies](https://david-dm.org/spm-style/cli.svg)](https://david-dm.org/spm-style/cli)
 [![Known Vulnerabilities](https://snyk.io/test/github/spm-style/cli/badge.svg)](https://snyk.io/test/github/spm-style/cli)
@@ -257,6 +258,9 @@ There are two main reasons to run this command before using any other spm featur
 * You cannot publish a project which has not been initialized. Which means you cannot use spm to share, demonstrate or version your code.
 
 Therefore, we strongly encourage you to run this command everytime you start a project.
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fspm-style%2Fcli.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fspm-style%2Fcli?ref=badge_large)
 
 ## Publishing your package
 
