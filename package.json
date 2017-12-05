@@ -3,6 +3,7 @@
     "spm": "./index.js"
   },
   "dependencies": {
+    "tunnel-agent":"^0.6.0",
     "chalk": "^2.0.1",
     "clear": "0.0.1",
     "color-convert": "^1.9.0",
