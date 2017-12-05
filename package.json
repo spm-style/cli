@@ -3,7 +3,6 @@
     "spm": "./index.js"
   },
   "dependencies": {
-    "tunnel-agent":"^0.6.0",
     "chalk": "^2.0.1",
     "clear": "0.0.1",
     "color-convert": "^1.9.0",
@@ -11,12 +10,13 @@
     "commander": "^2.11.0",
     "figlet": "^1.2.0",
     "inquirer": "^4.0.0",
-    "node-sass": "^4.5.3",
+    "node-sass": "git+https://git@github.com/ScandalousMan/node-sass.git",
     "prompt": "^1.0.0",
     "request": "^2.81.0",
-    "tar.gz": "^1.0.5"
+    "tar.gz": "^1.0.5",
+    "tunnel-agent": "^0.6.0"
   },
-  "description": "little surprise for Lucas",
+  "description": "the awesome style package manager",
   "devDependencies": {
     "coveralls": "^3.0.0",
     "istanbul": "^0.4.5",
