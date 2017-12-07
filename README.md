@@ -24,7 +24,7 @@ This github repository is our CLI code.
 
 ## How does spm work ?
 
-spm is powered by [scss](http://sass-lang.com/), the most popular css preprocessing language.
+spm is powered by [scss](http://sass-lang.com/), the most popular css preprocessing language. But don't worry ! spm works very well with css natively (we still promote scss though :grin: )
 
 Each package contains one or several classes which modify DOM elements' attributes. It can contain high-level variables used to customize the graphical behaviour of the component.
 
