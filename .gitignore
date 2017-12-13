@@ -1,0 +1,5 @@
+node_modules/
+test/
+lib/deprecated/
+global_spm/*
+registry_spm/*
