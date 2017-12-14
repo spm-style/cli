@@ -36,7 +36,7 @@ You will find in a package distinct elements :
 * `spm_modules` folder, where all your project's packages are stored
 * an *entry file* which is centralizing all other stylesheets with imports. 
 
-Every time you will use spm CLI commands, it will locate the spm project's scope by finding the closest package-spm.json file, in the current directory or its parents. You will be able to store packages inside each of your project or in your root as a global registry.
+Every time you use spm CLI commands, it locates the spm project's scope by finding the closest package-spm.json file, in the current directory or its parents. You will be able to store packages inside each of your project or in your root as a global registry.
 
 Two additionnal files can be found in a project
 * `style-guide.scss` file containing variables based on best practices about colors and dimensions
@@ -260,9 +260,6 @@ There are two main reasons to run this command before using any other spm featur
 
 Therefore, we strongly encourage you to run this command everytime you start a project.
 
-
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fspm-style%2Fcli.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fspm-style%2Fcli?ref=badge_large)
-
 ## Publishing your package
 
 **IMPORTANT** Before publishing a package, you must have a spm profile.
@@ -297,9 +294,15 @@ Wether the publication suceeds or not, a report will be displayed in your termin
 
 To ensure each package's unicity and the compatibility between all packages, spm renames all publications based on this model : *author*\_*name*. The classes and variables will be renamed the same way.
 
-Once your publication is validated, it will be accessible on spm website and accessible by:
+Once your publication is validated, it will be accessible by:
 * anyone if it is a public publication
 * specific collaborators you've chosen if it is a private publication
+
+The access to a publication includes :
+* access to its overview in our website
+* right to install the module in your project
+
+Moreover, specific contributors of your choice will be able to update your code and publish a new version.
 
 ## spm lexicon
 
