@@ -11,6 +11,8 @@
     "figlet": "^1.2.0",
     "inquirer": "^4.0.0",
     "node-sass": "git+https://git@github.com/ScandalousMan/node-sass.git",
+    "ora": "^1.3.0",
+    "preferences": "^1.0.2",
     "prompt": "^1.0.0",
     "request": "^2.81.0",
     "tar": "^4.1.1",
@@ -50,5 +52,5 @@
     "cover": "istanbul cover --no-default-excludes --report=text  -x '**/node_modules/**' _mocha test/*",
     "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls"
   },
-  "version": "0.0.11"
+  "version": "0.0.12"
 }
