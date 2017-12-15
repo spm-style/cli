@@ -22,7 +22,9 @@ for (let action in Lib) {
   Lib[action](Program).catch(errorFunc)
 }
 
-Program.parse(process.argv)
+Program
+.version('1.0.0')
+.parse(process.argv)
 
 if (Program.args.length === 0) {
   Program.help()
