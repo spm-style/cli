@@ -39,7 +39,7 @@
   "license": "ISC",
   "main": "index.js",
   "author": "boblee",
-  "name": "@spm/alpha",
+  "name": "spm-cli",
   "optionalDependencies": {},
   "readme": "README.md",
   "repository": {
