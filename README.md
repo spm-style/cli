@@ -8,7 +8,7 @@
 [![documentation](https://inch-ci.org/github/spm-style/cli.svg)](https://inch-ci.org/github/spm-style/cli)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-# spm
+# [spm](https://www.spm-style.com)
 
 spm is a style package manager. It makes it easy to find inspiration, maintain and share multiple graphical components and show off what you're capable of.
 
