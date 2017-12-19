@@ -22,6 +22,16 @@ spm is made up of two dinstinct pieces :
 
 This github repository is our CLI code.
 
+## How to install spm ?
+
+Make sure you have node.js minimum version 6.4.0 and npm 3.10.3, then run
+
+```shell
+npm i spm-cli -g
+```
+
+the global option matters a lot since it will allow you to use the spm command to launch our CLI
+
 ## How does spm work ?
 
 spm is powered by [scss](http://sass-lang.com/), the most popular css preprocessing language. But don't worry ! spm works very well with css natively (we still promote scss though :grin: )
