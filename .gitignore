@@ -3,4 +3,3 @@ lib/deprecated/
 global_spm/*
 registry_spm/*
 lib/watch.js
-test/
