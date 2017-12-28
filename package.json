@@ -36,6 +36,7 @@
     "elegance"
   ],
   "license": "ISC",
+  "homepage": "http://www.spm-style.com",
   "main": "index.js",
   "author": "boblee",
   "name": "spm-cli",
