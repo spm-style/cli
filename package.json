@@ -51,5 +51,5 @@
     "cover": "istanbul cover --no-default-excludes --report=text  -x '**/node_modules/**' _mocha test/*",
     "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls"
   },
-  "version": "1.0.0"
+  "version": "1.0.2"
 }
