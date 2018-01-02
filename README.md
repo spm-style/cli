@@ -8,7 +8,7 @@
 [![documentation](https://inch-ci.org/github/spm-style/cli.svg)](https://inch-ci.org/github/spm-style/cli)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-# spm
+# [spm](https://www.spm-style.com)
 
 spm is a style package manager. It makes it easy to find inspiration, maintain and share multiple graphical components and show off what you're capable of.
 
@@ -21,6 +21,16 @@ spm is made up of two dinstinct pieces :
 * our CLI, made for fast and explicit commands
 
 This github repository is our CLI code.
+
+## How to install spm ?
+
+Make sure you have node.js minimum version 6.4.0 and npm 3.10.3, then run
+
+```shell
+npm i spm-cli -g
+```
+
+the global option matters a lot since it will allow you to use the spm command to launch our CLI
 
 ## How does spm work ?
 

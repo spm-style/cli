@@ -29,7 +29,6 @@
     "lib": "lib",
     "test": "test"
   },
-  "gitHead": "6df26a041373415047e6f68e1bfd690a5c0a9bd4",
   "keywords": [
     "style",
     "spm",
@@ -37,13 +36,14 @@
     "elegance"
   ],
   "license": "ISC",
+  "homepage": "http://www.spm-style.com",
   "main": "index.js",
   "author": "boblee",
-  "name": "@spm/alpha",
+  "name": "spm-cli",
   "optionalDependencies": {},
   "readme": "README.md",
   "repository": {
-    "type": "git",
+    "type": "github",
     "url": "https://github.com/spm-style/cli"
   },
   "scripts": {
@@ -52,5 +52,11 @@
     "cover": "istanbul cover --no-default-excludes --report=text  -x '**/node_modules/**' _mocha test/*",
     "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls"
   },
-  "version": "0.0.15"
+  "standard": {
+    "globals": [
+      "describe",
+      "it"
+    ]
+  },
+  "version": "1.0.2"
 }
