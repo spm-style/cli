@@ -39,7 +39,6 @@ _.assign(ReadlineStub.prototype, stub)
 
 let action = (i, ui, actions) => {
   if (actions && actions.length > i) {
-    console.log(actions[i], 'GAGAGA')
     for (let userAction of actions[i]) {
       switch (userAction) {
         case 'space':
@@ -52,6 +51,7 @@ let action = (i, ui, actions) => {
           ui.rl.input.emit('keypress', null, { name: 'up' })
           break
         default:
+          ui.rl.emit('line', userAction)
           break
       }
     }
@@ -60,7 +60,6 @@ let action = (i, ui, actions) => {
 }
 
 let autosubmit = (i, ui, actions) => {
-  console.log()
   ui.process.subscribe(() => {
     i++
     setTimeout(() => {
