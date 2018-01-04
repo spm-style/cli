@@ -58,7 +58,9 @@
   "standard": {
     "globals": [
       "describe",
-      "it"
+      "it",
+      "afterEach",
+      "beforeEach"
     ]
   },
   "version": "1.0.2"

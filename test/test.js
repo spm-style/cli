@@ -1,14 +1,10 @@
-let Chalk = require('chalk')
 let sinon = require('sinon')
 let rewire = require('rewire')
 let expect = require('chai').expect
-let CONST = require('../lib/const')
 let Lib = require('../lib')
-let Preferences = require('preferences')
 
 /* MODIFYING THE FILE FOR BETTER PROMPT */
 let Wrapper = require('./inquirer-input-wrapper')
-let inquirer = require('inquirer')
 
 /* different inputs depending on the prompt scenario */
 let actions = {
@@ -47,7 +43,7 @@ let userPromptMappingFunc = wrapMyFunc([{name: 'Authentify', variables: ['Prompt
 let spy
 
 beforeEach(() => {
- spy = sinon.spy(console, 'log')
+  spy = sinon.spy(console, 'log')
 })
 
 afterEach(() => {
@@ -105,7 +101,7 @@ describe('USER', function () {
       done()
     })
     .catch(err => {
-      expect(undefined).to.equal(undefined)
+      expect(err).to.equal(undefined)
       done()
     })
     Program.parse(['node', '../.', 'user', 'info'])
