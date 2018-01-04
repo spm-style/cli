@@ -60,7 +60,7 @@ let action = (i, ui, actions) => {
 }
 
 let autosubmit = (i, ui, actions) => {
-  ui.process.subscribe(() => {
+  ui.process.subscribe(( data ) => {
     i++
     setTimeout(() => {
       action(i, ui, actions)
@@ -69,7 +69,7 @@ let autosubmit = (i, ui, actions) => {
   action(i, ui, actions)
 }
 
-let wrapper = (ui, actions) => {
+let wrapper = (ui, actions, name) => {
   let index = 0
   autosubmit(index, ui, actions)
 }

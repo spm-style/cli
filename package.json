@@ -47,7 +47,7 @@
     "url": "https://github.com/spm-style/cli"
   },
   "scripts": {
-    "test": "mocha",
+    "test": "mocha test/test.js",
     "standard": "standard",
     "cover": "istanbul cover --no-default-excludes --report=text  -x '**/node_modules/**' _mocha test/*",
     "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls"

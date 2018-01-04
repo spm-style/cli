@@ -1,30 +1,31 @@
 let Chalk = require('chalk')
 let sinon = require('sinon')
-let Program = require('commander')
+let rewire = require('rewire')
 let expect = require('chai').expect
 let CONST = require('../lib/const')
 let Lib = require('../lib')
+let Preferences = require('preferences')
 
 /* MODIFYING THE FILE FOR BETTER PROMPT */
 let Wrapper = require('./inquirer-input-wrapper')
-let rewire = require('rewire')
 let inquirer = require('inquirer')
 
 /* different inputs depending on the prompt scenario */
 let actions = {
-  register: [['testTravis'], ['test@travis.com'], ['Bonjour123']],
+  register: [['testTravis'], ['test2@travis.com'], ['Bonjour123']],
   login: [['testTravis'], ['Bonjour123']],
-  info: [['n']]
+  info: [['n', 'testTravis', 'Bonjour123']]
 }
 
-/* calls a different wrapper for each prompt scenario */
+// /* calls a different wrapper for each prompt scenario */
 let userPrompt = type => questions => {
-  let myPromise = inquirer.prompt(questions)
+  let Prompt = require('inquirer').prompt
+  let myPromise = Prompt(questions)
   Wrapper(myPromise.ui, actions[type])
   return myPromise
 }
 
-/* wrap the lib function depending on a mapping, for each scenario, in strict order */
+// /* wrap the lib function depending on a mapping, for each scenario, in strict order */
 let wrapMyFunc = files => type => {
   let myCustomFiles = []
   let customFilesMap = {}
@@ -40,6 +41,8 @@ let wrapMyFunc = files => type => {
   return myCustomFiles[myCustomFiles.length - 1]
 }
 
+let userPromptMappingFunc = wrapMyFunc([{name: 'Authentify', variables: ['Prompt']}, {name: 'user', variables: ['Authentify']}])
+
 /* defining a spy and its init + restore for each test */
 let spy
 
@@ -51,12 +54,11 @@ afterEach(() => {
   console.log.restore()
 })
 
-let userFunc = wrapMyFunc([{name: 'Authentify', variables: ['Prompt']}, {name: 'user', variables: ['Authentify']}])
-
 /* TEST */
 describe('USER', function () {
   it('register', done => {
-    userFunc('register')(Program)
+    let Program = rewire('commander')
+    userPromptMappingFunc('register')(Program)
     .then(token => {
       expect(token).to.be.a('string')
       done()
@@ -68,9 +70,10 @@ describe('USER', function () {
     Program.parse(['node', '../.', 'user', 'register'])
   })
   it('logout', done => {
+    let Program = rewire('commander')
     Lib.user(Program)
     .then(() => {
-      let args = console.log.args[spy.args.length - 1][spy.args[spy.args.length - 1].length - 1]
+      let args = spy.args[spy.args.length - 1][spy.args[spy.args.length - 1].length - 1]
       expect(args).to.include('disconnected')
       done()
     })
@@ -81,21 +84,11 @@ describe('USER', function () {
     Program.parse(['node', '../.', 'user', 'logout'])
   })
   it('login', done => {
-    userFunc('login')(Program)
+    let Program = rewire('commander')
+    userPromptMappingFunc('login')(Program)
     .then(token => {
       expect(token).to.be.a('string')
-      userFunc('info')(Program)
-      .then(() => {
-        let args = console.log.args[spy.args.length - 1][spy.args[spy.args.length - 1].length - 1]
-        expect(args).to.include('email: test@travis.com')
-        done()
-      })
-      .catch(err => {
-        expect(err).to.equal(undefined)
-        done()
-      })
-      Program.parse(['node', '../.', 'user', 'info'])
-      // done()
+      done()
     })
     .catch(err => {
       expect(err.message).to.equal('error')
@@ -103,7 +96,32 @@ describe('USER', function () {
     })
     Program.parse(['node', '../.', 'user', 'login'])
   })
-  // it('info', done => {
-    
+  it('info', done => {
+    let Program = rewire('commander')
+    Lib.user(Program)
+    .then(() => {
+      let args = spy.args[spy.args.length - 1][spy.args[spy.args.length - 1].length - 1]
+      expect(args).to.include('email: test@travis.com')
+      done()
+    })
+    .catch(err => {
+      expect(undefined).to.equal(undefined)
+      done()
+    })
+    Program.parse(['node', '../.', 'user', 'info'])
+  })
+  // it('logout', done => {
+  //   let Program = rewire('commander')
+  //   Lib.user(Program)
+  //   .then(() => {
+  //     let args = spy.args[spy.args.length - 1][spy.args[spy.args.length - 1].length - 1]
+  //     expect(args).to.include('disconnected')
+  //     done()
+  //   })
+  //   .catch(err => {
+  //     expect(err.message).to.equal('error')
+  //     done()
+  //   })
+  //   Program.parse(['node', '../.', 'user', 'logout'])
   // })
 })
