@@ -97,7 +97,7 @@ describe('USER', function () {
     Lib.user(Program)
     .then(() => {
       let args = spy.args[spy.args.length - 1][spy.args[spy.args.length - 1].length - 1]
-      expect(args).to.include('email: test@travis.com')
+      expect(args).to.include('email: test2@travis.com')
       done()
     })
     .catch(err => {
