@@ -2,6 +2,6 @@ language: node_js
 node_js:
   - "7"
 install:
-  - npm install && npm install mocha standard -g
+  - npm install && npm install mocha standard istanbul -g
 after_success:
   - npm run coveralls%

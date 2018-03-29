@@ -10,7 +10,7 @@
     "test": "mocha test/test.js",
     "test-recap": "node test/test-spawn.js",
     "standard": "standard -r *.js",
-    "cover": "istanbul cover --no-default-excludes --report=text  -x '**/node_modules/**' _mocha test/*",
+    "cover": "istanbul cover --no-default-excludes --report=text  -x '**/node_modules/**' _mocha test/*.js",
     "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls"
   },
   "standard": {
