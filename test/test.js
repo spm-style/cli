@@ -25,7 +25,9 @@ describe('f° Standard', () => {
       }
       console.log(issues)
       expect(issues.length).to.equal(0, util.inspect(issues, false, null))
+      console.log('done')
       done()
+      console.log('post-done')
     })
   })
 })
