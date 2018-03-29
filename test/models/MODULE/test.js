@@ -3,7 +3,7 @@ let sinon = require('sinon')
 let rewire = require('rewire')
 let expect = require('chai').expect
 let moduleLib = require('../../../src/models/module')
-const cmd = '../../../src/spm2'
+const cmd = '../../../src/spm'
 let Common = require('../../../src/lib/common')
 let testCommon = require('../../lib/common')
 

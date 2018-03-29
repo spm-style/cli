@@ -2,7 +2,7 @@ let sinon = require('sinon')
 let rewire = require('rewire')
 let expect = require('chai').expect
 let userLib = require('../../../src/models/user')
-const cmd = '../../../src/spm2'
+const cmd = '../../../src/spm'
 let globalWrapper = require('../../inquirer-input-wrapper')
 
 /* inputs depending on the user prompt scenarios */

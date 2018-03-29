@@ -114,46 +114,46 @@ let getModuleJsonPromise = (publish) => {
   })
 }
 
-/* Checks the module parameters and suggests 'spm2 module edit' if not found */
+/* Checks the module parameters and suggests 'spm module edit' if not found */
 let checkModuleJsonPromise = (publish) => {
   if (publish.debug) { Debug() }
   return new Promise((resolve, reject) => {
     const keyMaps = {
       name: {
         regex: /^(?!^spm_modules$).{2,}$/,
-        message: `name should be longer than 2 characters (value spm_modules forbidden) - use 'spm2 module edit --name <name>'`
+        message: `name should be longer than 2 characters (value spm_modules forbidden) - use 'spm module edit --name <name>'`
       },
       version: {
         regex: publish.version ? false : /^[0-9]+[.][0-9]+[.][0-9]+$/,
-        message: `Incorrect version in package-spm.json - use 'spm2 module edit --version <version>'`
+        message: `Incorrect version in package-spm.json - use 'spm module edit --version <version>'`
       },
       style: {
         regex: /^(?:css|scss)$/,
-        message: `your style should be css or scss - use 'spm2 module edit --style <style>'`
+        message: `your style should be css or scss - use 'spm module edit --style <style>'`
       },
       mainClass: {
         regex: /^.{2,}$/,
-        message: `main class should be longer than 2 characters - use 'spm2 module edit --main-class <mainClass>'`
+        message: `main class should be longer than 2 characters - use 'spm module edit --main-class <mainClass>'`
       },
       description: {
         regex: false,
-        message: `missing description - use 'spm2 module edit --description  <description>'`
+        message: `missing description - use 'spm module edit --description  <description>'`
       },
       category: {
         regex: false,
-        message: `missing category - use 'spm2 module edit --category <category>'`
+        message: `missing category - use 'spm module edit --category <category>'`
       },
       readme: {
         regex: false,
-        message: `missing readme - use 'spm2 module edit --readme <readmeFile>'`
+        message: `missing readme - use 'spm module edit --readme <readmeFile>'`
       },
       repository: {
         regex: false,
-        message: `missing repository - use 'spm2 module edit --repository <repository>'`
+        message: `missing repository - use 'spm module edit --repository <repository>'`
       },
       license: {
         regex: false,
-        message: `missing license - use 'spm2 module edit --license <license>'`
+        message: `missing license - use 'spm module edit --license <license>'`
       }
     }
     const arrays = ['keywords', 'contributors', 'classes', 'responsive']
@@ -162,7 +162,7 @@ let checkModuleJsonPromise = (publish) => {
     }
     for (let moduleArray of arrays) {
       if (!publish.json[moduleArray] || !(publish.json[moduleArray] instanceof Array)) {
-        return reject(new Error(`incorrect ${moduleArray} - use 'spm2 module edit --${moduleArray} <${moduleArray}>'`))
+        return reject(new Error(`incorrect ${moduleArray} - use 'spm module edit --${moduleArray} <${moduleArray}>'`))
       }
     }
     publish.name = publish.json.name
