@@ -35,7 +35,7 @@ const requestsToIntercept = {
   'validator.w3.org': {
     '/nu/?out=text': {
       'POST': {
-        msg: 'okokok'
+        msg: 'ok'
       }
     }
   }

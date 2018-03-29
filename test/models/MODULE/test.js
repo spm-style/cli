@@ -20,7 +20,7 @@ module.exports = (dir) => {
     .then(() => {
       Fs.readdir('testModule', (err, files) => {
         if (err) { console.log(err) }
-        const expectedFiles = ['const-spm.js', 'testModule.html', 'module-spm.json', 'testModule.js', 'testModule.css', 'variables-spm.css']
+        const expectedFiles = ['testModule.html', 'module-spm.json', 'testModule.js', 'testModule.css', 'variables-spm.css']
         for (let file of expectedFiles) { expect(files).to.include(file) }
         Common.getJsonFilePromise('testModule/module-spm.json')
         .then(json => {
@@ -42,11 +42,11 @@ module.exports = (dir) => {
     .then(() => {
       let args = console.log.args[console.log.args.length - 2][console.log.args[console.log.args.length - 1].length - 1]
       console.log.restore()
-      expect(args).to.includes(`module's key mainClass successfully updated to moduleTest`)
+      expect(args).to.includes(`module's key repository successfully updated to repository`)
       done()
     })
     .catch(console.log)
-    Program.parse([cmd, 'module', 'edit', '--main-class', 'moduleTest'])
+    Program.parse([cmd, 'module', 'edit', '--main-class', 'moduleTest', '--description', 'description', '--repository', 'repository', '--readme', 'readme', '--category', 'category', '--responsive', 'laptop'])
   })
   it('detail', done => {
     sinon.spy(console, 'log')
@@ -55,7 +55,7 @@ module.exports = (dir) => {
     .then(() => {
       let args = console.log.args[console.log.args.length - 1][console.log.args[console.log.args.length - 1].length - 1]
       console.log.restore()
-      expect(args).to.equal('{\n  "name": "testModule",\n  "version": "1.0.0",\n  "author": "testTravis",\n  "style": "css",\n  "type": "native",\n  "mainClass": "moduleTest",\n  "description": "",\n  "jsStandard": "modular",\n  "category": "",\n  "responsive": [],\n  "keywords": [],\n  "dependencies": {},\n  "files": {\n    "index": "testModule.html",\n    "script": "testModule.js",\n    "style": "testModule.css"\n  },\n  "classes": [],\n  "readme": "",\n  "repository": "",\n  "license": "MIT",\n  "contributors": []\n}')
+      expect(args).to.equal('{\n  "name": "testModule",\n  "version": "1.0.0",\n  "author": "testTravis",\n  "style": "css",\n  "type": "native",\n  "mainClass": "moduleTest",\n  "description": "description",\n  "jsStandard": "legacy",\n  "category": "category",\n  "responsive": [\n    "laptop"\n  ],\n  "keywords": [],\n  "dependencies": {},\n  "files": {\n    "index": "testModule.html",\n    "script": "testModule.js",\n    "style": "testModule.css"\n  },\n  "classes": [],\n  "readme": "readme",\n  "repository": "repository",\n  "license": "MIT",\n  "contributors": []\n}')
       done()
     })
     .catch(console.log)
@@ -78,7 +78,7 @@ module.exports = (dir) => {
             done()
           })
           .catch(console.log)
-          Program.parse([cmd, 'module', 'publish', '--version', '1.0.0', '--force'])
+          Program.parse([cmd, 'module', 'publish', '--version', '1.0.0', '--force', '--no-js'])
         })
       })
     })

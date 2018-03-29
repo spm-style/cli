@@ -83,6 +83,7 @@ class Publish {
     this.debug = options.debug || false
     this.force = options.force || false
     this.access = options.access
+    this.noJs = options.js === false
     this.htmlChecker = options.htmlChecker
     this.jsImports = []
     this.warnings = []

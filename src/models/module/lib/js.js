@@ -27,7 +27,7 @@ let parseProcessPromise = (publish) => {
       }
     }
     if (!moduleClassesFound) {
-      Common.promptConfirmation({}, false, `no classes used in module's js script found in your module - are you sure to publish ?`)
+      Common.promptConfirmation({}, false, `no class used in module's js script found in your module - are you sure to publish ?`)
       .then(() => resolve(publish))
       .catch(reject)
     } else { return resolve(publish) }
@@ -38,6 +38,7 @@ let parseProcessPromise = (publish) => {
 let fileCheckerPromise = (publish) => {
   if (publish.debug) { Debug() }
   return new Promise((resolve, reject) => {
+    if (publish.noJs) { return resolve(publish) }
     Fs.readFile(`${publish.path}/${publish.json.files.script}`, 'utf8', (err, data) => {
       if (err && err.code !== 'ENOENT') { return reject(err) } else if (err || !data.length) {
         Common.promptConfirmation({}, false, 'no js script found in your module - are you publishing a css-only module ?')

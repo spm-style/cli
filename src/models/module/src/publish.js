@@ -325,9 +325,9 @@ let checkPublicationContent = (publish) => {
 let confirmationPublishPromise = (publish) => {
   if (publish.debug) { Debug() }
   return new Promise((resolve, reject) => {
-    if (publish.force) { return resolve(publish) }
     checkPublicationContent(publish)
     .then(() => {
+      if (publish.force) { return resolve(publish) }
       console.log(`You are about to publish the module ${publish.name}@${publish.version}\nif you have the rights to publish, your contribution will be added in spm registry`)
       Common.promptConfirmation(publish, true, 'Do you confirm this ')
       .then(resolve)
@@ -384,6 +384,7 @@ let createTgzPromise = (publish) => {
 let sendPublicationToRegistryPromise = (publish) => {
   if (publish.debug) { Debug() }
   return new Promise((resolve, reject) => {
+    console.log('foRMData', publish.apiPackage)
     let formData = { package: JSON.stringify(publish.apiPackage) }
     if (publish.debug) console.log('package', formData.package)
     formData.module = Fs.createReadStream(`${publish.path}/.tmp_spm_publish/${publish.name}.tgz`)
@@ -442,6 +443,7 @@ module.exports = (Program) => {
     .option('-a, --access [access]', 'to specify the authorization level to your module', /^(public|private)$/i, 'public')
     .option('-v, --version <version>', `to specify the module's version`)
     .option('--html-checker', `to force the tool to fix conflicts between html files containing your main class`)
+    .option('--no-js', `to indicate your module doesn't contain any javascript`)
     .option('--debug', 'to display debug logs')
     .option('--force', 'to pubish without confirmation if information are correct')
     .action((moduleName, options) => {
