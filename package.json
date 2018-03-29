@@ -1,6 +1,6 @@
 {
-  "name": "@spm/cli2",
-  "version": "1.0.0",
+  "name": "spm-cli",
+  "version": "2.0.0",
   "description": "the awesome style project manager",
   "main": "index.js",
   "directories": {
@@ -21,7 +21,7 @@
       "beforeEach"
     ]
   },
-  "author": "",
+  "author": "boblee",
   "license": "ISC",
   "dependencies": {
     "acorn": "^5.4.1",
