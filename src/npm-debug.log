@@ -1,0 +1,28 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/Users/stu-adrien/.nvm/versions/node/v7.6.0/bin/node',
+1 verbose cli   '/Users/stu-adrien/.nvm/versions/node/v7.6.0/bin/npm',
+1 verbose cli   'link',
+1 verbose cli   './spm2' ]
+2 info using npm@4.1.2
+3 info using node@v7.6.0
+4 verbose stack Error: Argument #2: Expected array but got string
+4 verbose stack     at EventEmitter.install (/Users/stu-adrien/.nvm/versions/node/v7.6.0/lib/node_modules/npm/lib/install.js:182:3)
+4 verbose stack     at Object.commandCache.(anonymous function) (/Users/stu-adrien/.nvm/versions/node/v7.6.0/lib/node_modules/npm/lib/npm.js:128:13)
+4 verbose stack     at /Users/stu-adrien/.nvm/versions/node/v7.6.0/lib/node_modules/npm/lib/link.js:93:24
+4 verbose stack     at /Users/stu-adrien/.nvm/versions/node/v7.6.0/lib/node_modules/npm/node_modules/graceful-fs/polyfills.js:287:18
+4 verbose stack     at FSReqWrap.oncomplete (fs.js:114:15)
+5 verbose cwd /Users/stu-adrien/Documents/start-to-xxx/spm/cli/src
+6 error Darwin 16.7.0
+7 error argv "/Users/stu-adrien/.nvm/versions/node/v7.6.0/bin/node" "/Users/stu-adrien/.nvm/versions/node/v7.6.0/bin/npm" "link" "./spm2"
+8 error node v7.6.0
+9 error npm  v4.1.2
+10 error code EINVALIDTYPE
+11 error typeerror Error: Argument #2: Expected array but got string
+11 error typeerror     at EventEmitter.install (/Users/stu-adrien/.nvm/versions/node/v7.6.0/lib/node_modules/npm/lib/install.js:182:3)
+11 error typeerror     at Object.commandCache.(anonymous function) (/Users/stu-adrien/.nvm/versions/node/v7.6.0/lib/node_modules/npm/lib/npm.js:128:13)
+11 error typeerror     at /Users/stu-adrien/.nvm/versions/node/v7.6.0/lib/node_modules/npm/lib/link.js:93:24
+11 error typeerror     at /Users/stu-adrien/.nvm/versions/node/v7.6.0/lib/node_modules/npm/node_modules/graceful-fs/polyfills.js:287:18
+11 error typeerror     at FSReqWrap.oncomplete (fs.js:114:15)
+12 error typeerror This is an error with npm itself. Please report this error at:
+12 error typeerror     <https://github.com/npm/npm/issues>
+13 verbose exit [ 1, true ]
