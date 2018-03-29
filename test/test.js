@@ -23,6 +23,7 @@ describe('f° Standard', () => {
           issues.push({ filePath: result.filePath, messages: result.messages })
         }
       }
+      console.log(issues)
       expect(issues.length).to.equal(0, util.inspect(issues, false, null))
       done()
     })
