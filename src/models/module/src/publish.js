@@ -384,7 +384,6 @@ let createTgzPromise = (publish) => {
 let sendPublicationToRegistryPromise = (publish) => {
   if (publish.debug) { Debug() }
   return new Promise((resolve, reject) => {
-    console.log('foRMData', publish.apiPackage)
     let formData = { package: JSON.stringify(publish.apiPackage) }
     if (publish.debug) console.log('package', formData.package)
     formData.module = Fs.createReadStream(`${publish.path}/.tmp_spm_publish/${publish.name}.tgz`)
