@@ -29,7 +29,7 @@ describe('f° Standard', () => {
       done()
       console.log('post-done')
     })
-  })
+  }).timeout(6000)
 })
 
 /* starting the interceptor */
