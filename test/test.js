@@ -26,7 +26,7 @@ describe('f° Standard', () => {
       expect(issues.length).to.equal(0, util.inspect(issues, false, null))
       done()
     })
-  }).timeout(6000)
+  }).timeout(10000)
 })
 
 /* starting the interceptor */
