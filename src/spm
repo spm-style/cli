@@ -3,6 +3,7 @@ let Program = require('commander')
 
 Program
 .version('1.0.0', '-V')
+.command('version', 'to display current version').alias('v')
 .command('user', 'for actions about users').alias('u')
 .command('project', 'for actions about projects').alias('p')
 .command('module', 'for actions about modules').alias('m')

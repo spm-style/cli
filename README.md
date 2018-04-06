@@ -21,7 +21,7 @@ All of that, and much more, *FOR FREE*!
 spm empowers your projects by allowing collaborators to work together very easily. Moreover, you can sharpen your performances through community's contribution. Of course, if you wish, your code can remain private hosted either by ourselves or within your organization.
 
 spm is made up of two dinstinct pieces :
-* our Sandbox, a graphical interface allowing you to discover, experiment a constellation of graphical elements and their customizations and bundle them in downloadable bundles
+* our Sandbox, a graphical interface allowing you to discover, experiment a constellation of graphical elements and their customizations and assemble them in downloadable bundles
 * our CLI, made for fast and explicit commands
 
 This github repository is our CLI code.
@@ -38,178 +38,62 @@ the global option matters a lot since it will allow you to use the spm command t
 
 ## How does spm work ?
 
-spm is powered by [scss](http://sass-lang.com/), the most popular css preprocessing language. But don't worry ! spm works very well with css natively (we still promote scss though :grin: )
+spm is based on 3 different elements :
+* modules, which bring customizable components into your code
+* projects, bringing powerful enterprise features on the top of modules
+* styleguides, defining your modules' or projects' style and best practices
 
-Each package contains one or several classes which modify DOM elements' attributes. It can contain high-level variables used to customize the graphical behaviour of the component.
+Each element can be shared publicly or privately with a selected community, accessible through spm's registry.
 
-A package's full name is made up with the initial author's name and the intial package name, joined by a `_`. Classes and variables used to customize the package will originally always start with the package's full name.
+Once an element has been published, it is available on our sandbox platform, where it can be customized and its source code downloaded.
 
-You will find in a package distinct elements :
-* `package-spm.json` file containing the package information, especially the entry file where all the code is imported
-* `variables-spm.scss` file containing the package's main variables and especially the variable you can customize
-* `spm_modules` folder, where all your project's packages are stored
-* an *entry file* which is centralizing all other stylesheets with imports. 
+spm stylesheets are powered by [scss](http://sass-lang.com/), the most popular css preprocessing language. But don't worry ! spm works very well with css natively (we still promote scss though :grin: )
 
-Every time you use spm CLI commands, it locates the spm project's scope by finding the closest package-spm.json file, in the current directory or its parents. You will be able to store packages inside each of your project or in your root as a global registry.
+The elements' dynamic part are powered by javascript, allowing ES5 and ES6 versions ([until modular scripts are fully supported by browsers](https://caniuse.com/#feat=es6-module)).
 
-Two additionnal files can be found in a project
-* `style-guide.scss` file containing variables based on best practices about colors and dimensions
-* `ref-dom.html` file used for publication based on a custom DOM
+Before we dive into our core feature, modules, let's talk a bit more about our CLI.
 
-When installing spm, a registry is created as well. Global packages will be stored in it, classified by names, then by version.
+### spm CLI paradigm
 
-Once you've found a package you like, you're ready to deploy it in your project !
-
-## Installing packages with spm
-
-Let's say you want to use the graphical element you've seen in package `apollo_onOff`. Open your terminal and navigate to your project, then use the `spm install` or short `spm i` CLI command.
-```shell
-$ spm i apollo_onOff
-```
-At the end of the installation, the CLI displays the detail of what was installed, and WARNING / ERROR messages :
-```shell
-$ spm i apollo_onOff
-
-The following file has been installed :
-apollo_onOff@2.0.1
-  |_ apollo_input@1.0.1 .......... blue-input
-     |
-     |_ apollo_form-elem@1.2.7
-```
-By default, spm installer optimizes the quantity of information installed in your computer. If the requested version of your package already exists in your project or in you registry, no additional code will be written and a symbolic link will be created.
-
-## Pattern
+Our CLI can be summoned using the command `spm`.
+Here is how it works:
 
 ```shell
-$ spm <model> <action> [options...]
+Usage: spm [options] [command]
+
+  Options:
+
+    -V            output the version number
+    -h, --help    output usage information
+
+  Commands:
+
+    user|u        for actions about users
+    project|p     for actions about projects
+    module|m      for actions about modules
+    styleguide|s  for actions about styleguides
+    help [cmd]    display help for [cmd]
 ```
 
-## Model - Project
+The first argument following `spm` command defines the element you want to interact with :
+* project, module or styleguide, as detailed above
+* user, in order to interact with your spm profile
 
-* Créer nouveau projet
-```shell
-$ spm project create <name> [options...]
-```
-=> génère automatiquement un styleguide sauf si option --no-styleguide ?
+After this argument, you can select the action you request, and its potential parameters.
 
-creates styleguide.scss + environment.js files
-creates index.html
+For example:
 
-* Publier un nouveau projet
 ```shell
-$ spm project publish <name> [options...]
-```
-* Modifier des propriétés locales du projet avant publication
-```shell
-$ spm project edit <name> [options...]
-```
-* Modifier des permissions sur le projet
-```shell
-$ spm project admin <name> [options...]
-```
-* Importer un module dans le projet
-```shell
-$ spm project use <moduleName> [options...]
-```
-=> dans project ou dans module ?
+$> spm user register
 
-* cleaner les modules déjà publiés en les important en tant que dépendances
-```shell
-$ spm project clean [options...]
-```
-* modifier la version du projet
-```shell
-$ spm project version [enum('PATCH', 'MINOR', 'MAJOR')] [options...]
-```
-* Détail d'un projet
-```shell
-$ spm project detail [options...]
-```
-* Liste des modules utilisés dans un projet
-```shell
-$ spm project list [options...]
+$> spm module install apollo_onOff
 ```
 
-## Model - Styleguide
+are two valid spm commands to create and account and install a module in your code.
 
-* Créer nouveau styleguide
-```shell
-$ spm styleguide create [options...]
-```
+## User
 
-* Utiliser un styleguide existant
-```shell
-$ spm styleguide import <name> [options...]
-```
-=> import au lieu d'install ? sachant que c'est un pur import pour le coup
-
-* Publier un styleguide
-```shell
-$ spm styleguide publish <name> [options...]
-```
-* Supprimer un styleguide
-```shell
-$spm styleguide unpublish <name> [options...]
-```
-=> pas de version pour un styleguide
-
-## Model - Module
-
-* Créer nouveau module dans un répertoire
-```shell
-$ spm module create [options...]
-```
-=> options du init original + --flat + --no-css + --no-js + --no-file
-
-creates variables-spm.css + const-spm.js for instance variables
-name.[extension]
-creates style.scss, script.js & index.html + balises
-links variables-spm.scss to project styleguide if found
-no index.html if project found
-
-* Modifier les propriétés locales du module avant publication
-```shell
-$ spm module edit [name] [options...]
-```
-* Modifier les permissions sur le projet
-```shell
-$ spm module admin [name] [options...]
-```
-* Installer un module
-```shell
-$ spm module install <name> [options...]
-```
-* Générer une instance d'un module
-```shell
-$ spm module generate <name> [options...]
-```
-* Publier un module
-```shell
-$ spm module publish [name>][options...]
-```
-* Liste des modules utilisés dans un projet + dépendances
-```shell
-$ spm module list [options...]
-```
-* Recherche de modules publics et privés autorisés dans le registre
-```shell
-$ spm module search [options...]
-```
-* Supprimer une version d'un module ou un module entier
-```shell
-$ spm module unpublish <name[@version]> [options...]
-```
-* Récupérer le contenu source d'un module publié
-```shell
-$ spm module clone <name> [options...]
-```
-* Détails d'un module (package.json)
-```shell
-$ spm module detail [name] <options>
-```
-=> options pouvant être comme les selects dans mongo (--item1 --item2 pour seulement item1 et item2, --no-item3 --no-item4 pour tout sauf item3 et item4)
-
-## Model - User
+This command is straight-forward :
 
 * Register
 ```shell
@@ -223,7 +107,163 @@ $ spm user login
 ```shell
 $ spm user logout
 ```
-* Detail du current user
+* Current logged user's details
 ```shell
 $ spm user detail
+```
+
+## Module
+
+Since projects and styleguides are still in development, this guide is describing our core feature : modules
+
+Each module can contain:
+* one or several stylesheets to affect the classes used in the DOM
+* a script defining a javascript class
+* high-level style or script variables used to customize the graphical behaviour of the component.
+
+A module's full name is made up with the initial author's name and the intial module name, joined by a `_`. Classes and variables used to customize the module will originally always start with the module's full name.
+
+You will find in a module distinct elements :
+* `module-spm.json` file containing the module information, especially the entry file where all the code is imported
+* `variables-spm.scss` file containing the module's main variables and especially the variable you can customize
+* `spm_modules` folder, where all your project's modules are stored
+* `spm_instances` folder, where two files are stored:
+    - `spm_instances.js`: to list, select and customize all the modules' scripts you're using in your code
+    - `spm_instances.scss`: to list, select and customize all the modules' stylesheets you're using in your code
+* three *entry files* which are the entry point for your html, css and javascript code
+
+Every time you use spm CLI commands, it locates spm scope by finding the closest module-spm.json file, in the current directory or its parents. You will be able to store modules inside each of your project or in your root as a global registry.
+
+When installing spm, a registry is created as well. Global modules will be stored in it, classified by names, then by version.
+
+Once you've found a module you like, you're ready to deploy it in your project !
+
+### Installing modules with spm
+
+Let's say you want to use the graphical element you've seen in module `apollo_onOff`. Open your terminal and navigate to your project, then use the `spm module install` or short `spm m i` CLI command.
+```shell
+$ spm m i apollo_onOff
+```
+At the end of the installation, the CLI displays the detail of what was installed, and WARNING / ERROR messages :
+```shell
+$ spm m i apollo_onOff
+
+The following file has been installed :
+apollo_onOff@2.0.1
+  |_ apollo_input@1.0.1
+     |
+     |_ apollo_form-elem@1.2.7
+```
+
+By default, spm installer optimizes the quantity of information installed in your computer. If the requested version of your module already exists in your project or in you registry, no additional code will be written and a symbolic link will be created.
+
+## Other features - implemented in next release
+
+### Project
+
+* To create a new project
+```shell
+$ spm project create <name> [options...]
+```
+* To publish a project
+```shell
+$ spm project publish <name> [options...]
+```
+* To modify project's local properties before publication
+```shell
+$ spm project edit <name> [options...]
+```
+* To modify project's permissions
+```shell
+$ spm project admin <name> [options...]
+```
+* To clean already published modules and import them as dependencies
+```shell
+$ spm project clean [options...]
+```
+* To modify the project's version
+```shell
+$ spm project version [enum('PATCH', 'MINOR', 'MAJOR')] [options...]
+```
+* To display project's details
+```shell
+$ spm project detail [options...]
+```
+* To list modules used in a project
+```shell
+$ spm project list [options...]
+```
+
+## Model - Styleguide
+
+* To create a new styleguide
+```shell
+$ spm styleguide create [options...]
+```
+* To use an existing styleguide
+```shell
+$ spm styleguide import <name> [options...]
+```
+* To publish a styleguide
+```shell
+$ spm styleguide publish <name> [options...]
+```
+* To delete a styleguide
+```shell
+$ spm styleguide unpublish <name> [options...]
+```
+
+## cheatsheet
+
+Generic model of one spm CLI command
+
+```shell
+$ spm <model> <action> [options...]
+```
+
+### modules
+
+* Creation
+```shell
+$ spm module create [options...]
+```
+* Modification (properties before publication)
+```shell
+$ spm module edit [name] [options...]
+```
+* Modification (permissions)
+```shell
+$ spm module admin [name] [options...]
+```
+* Installations
+```shell
+$ spm module install <name> [options...]
+```
+* Generation (custom instances)
+```shell
+$ spm module generate <name> [options...]
+```
+* Publication
+```shell
+$ spm module publish [name>][options...]
+```
+* List
+```shell
+$ spm module list [options...]
+```
+* Search
+```shell
+$ spm module search [options...]
+```
+* Deletion
+```shell
+$ spm module unpublish <name[@version]> [options...]
+```
+* Cloning
+```shell
+$ spm module clone <name> [options...]
+```
+* Details (module-spm.json's content)
+```shell
+$ spm module detail [name] <options>
 ```
