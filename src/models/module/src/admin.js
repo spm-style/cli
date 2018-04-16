@@ -1,3 +1,4 @@
+let Path = require('path')
 let Chalk = require('chalk')
 let Request = require('request')
 let Preferences = require('preferences')
@@ -16,7 +17,7 @@ let defineModuleNamePromise = (admin) => {
         return reject(new Error(`no module detected`))
       } else {
         admin.pathFinal = path
-        Common.getJsonFilePromise(`${admin.pathFinal}/${CONST.MODULE_JSON_NAME}`)
+        Common.getJsonFilePromise(Path.join(admin.pathFinal, CONST.MODULE_JSON_NAME))
         .then(json => {
           if (!json) { return reject(new Error(`json file removed during process`)) }
           admin.moduleName = json.name
@@ -76,20 +77,22 @@ module.exports = (Program) => {
         }
         Request(options, (err, res, body) => {
           if (err) { return reject(err) }
-          let json = body
-          if (typeof body !== 'object') { json = JSON.parse(body) }
-          if (json.statusCode >= 400) { return reject(new Error(json.message)) }
-          if (admin.ownerAdd) {
-            console.log(`🙋  you have added ${admin.ownerAdd} as contributor of ${admin.moduleName}`)
-          } else if (admin.ownerRemove) {
-            console.log(`😿  you have removed ${admin.ownerRemove} from ${admin.moduleName} contributors`)
-          } else {
-            console.log(`the following users are currently contributing to ${admin.moduleName}:`)
-            let maxLen = 0
-            for (let contributor of json.contributors) { maxLen = Math.max(maxLen, contributor.login.length) }
-            for (let contributor of json.contributors) { console.log(`🕶  ${Array(maxLen - contributor.login.length).join(' ')}${contributor.login}: ${contributor.email}`) }
-          }
-          return resolve(body)
+          try {
+            let json = body
+            if (typeof body !== 'object') { json = JSON.parse(body) }
+            if (json.statusCode >= 400) { return reject(new Error(json.message)) }
+            if (admin.ownerAdd) {
+              console.log(`🙋  you have added ${admin.ownerAdd} as contributor of ${admin.moduleName}`)
+            } else if (admin.ownerRemove) {
+              console.log(`😿  you have removed ${admin.ownerRemove} from ${admin.moduleName} contributors`)
+            } else {
+              console.log(`the following users are currently contributing to ${admin.moduleName}:`)
+              let maxLen = 0
+              for (let contributor of json.contributors) { maxLen = Math.max(maxLen, contributor.login.length) }
+              for (let contributor of json.contributors) { console.log(`🕶  ${Array(maxLen - contributor.login.length).join(' ')}${contributor.login}: ${contributor.email}`) }
+            }
+            return resolve(body)
+          } catch (e) { return reject(e) }
         })
       })
       .catch(reject)

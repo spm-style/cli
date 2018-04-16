@@ -84,9 +84,9 @@ After this argument, you can select the action you request, and its potential pa
 For example:
 
 ```shell
-$> spm user register
+$ spm user register
 
-$> spm module install apollo_onOff
+$ spm module install apollo_onOff
 ```
 
 are two valid spm commands to create and account and install a module in your code.

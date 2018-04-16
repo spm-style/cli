@@ -1,4 +1,5 @@
 let Fs = require('fs')
+let Path = require('path')
 let Clear = require('clear')
 let Chalk = require('chalk')
 let Figlet = require('figlet')
@@ -63,7 +64,7 @@ let createModulePromise = (create) => {
         name: 'jsStandard',
         type: 'list',
         choices: ['modular', 'legacy'],
-        default: 'modular',
+        default: 'legacy',
         message: 'chose your js standard : legacy only recommended for native script'
       },
       category: {
@@ -155,7 +156,7 @@ let recapAndConfirmPromise = (create) => {
     let module = new Models.Module(create)
     create.json = module
     if (!create.default) {
-      console.log(`About to write to ${create.path}/module-spm.json`)
+      console.log(`About to write to ${Path.join(create.path, 'module-spm.json')}`)
       console.log(JSON.stringify(module, null, '  '))
       Common.promptConfirmation(module, true)
       .then(() => resolve(create))
@@ -168,10 +169,10 @@ let recapAndConfirmPromise = (create) => {
 let createFolderPromise = (create) => {
   return new Promise((resolve, reject) => {
     if (!create.flat) {
-      Fs.mkdir(`${create.initialPath}/${create.name}`, err => {
+      Fs.mkdir(Path.join(create.initialPath, create.name), err => {
         if (err) { return reject(err) }
         create.successes.push(`folder ${create.name} successfully created`)
-        create.path = `${create.initialPath}/${create.name}`
+        create.path = Path.join(create.initialPath, create.name)
         return resolve(create)
       })
     } else {
@@ -225,7 +226,7 @@ let createModuleFilePromise = (create) => {
     let promises = []
     for (let file of filesToCreate) {
       if (file.toCreate) {
-        promises.push(Common.writeFilePromise(create.flat ? file.name : `${create.name}/${file.name}`, file.content, create, file.toForce))
+        promises.push(Common.writeFilePromise(create.flat ? file.name : Path.join(create.name, file.name), file.content, create, file.toForce))
       } else {
         create.warnings.push(`file ${file.name} not created as requested`)
       }
@@ -283,7 +284,7 @@ module.exports = (Program) => {
         Program.help()
       } else {
         let create = new Models.Create(name, options)
-        Common.fileExistsPromise(`${create.initialPath}/${name}`)
+        Common.fileExistsPromise(Path.join(create.initialPath, name))
         .then(doesExist => {
           if (doesExist && !options.flat && !options.force) { return reject(new Error(`directory ${name} already exist in current folder - remove it or use option --force`)) }
           testProjectScopePromise(create)

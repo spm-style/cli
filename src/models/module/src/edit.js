@@ -1,3 +1,4 @@
+let Path = require('path')
 let Chalk = require('chalk')
 let Prompt = require('inquirer').prompt
 let Preferences = require('preferences')
@@ -26,7 +27,7 @@ let getModuleJsonPromise = (edit) => {
     .then(path => {
       if (!path) { return reject(new Error(CONST.ERROR.SPM_MODULE_NOT_FOUND)) }
       edit.path = path
-      Common.getJsonFilePromise(`${path}/${CONST.MODULE_JSON_NAME}`)
+      Common.getJsonFilePromise(Path.join(path, CONST.MODULE_JSON_NAME))
       .then(json => {
         edit.json = json
         return resolve(edit)
@@ -223,7 +224,7 @@ module.exports = (Program) => {
         .then(getModuleJsonPromise)
         .then(modifyVariableJsonPromise)
         .then(res => {
-          Common.writeFilePromise(`${edit.path}/${CONST.MODULE_JSON_NAME}`, JSON.stringify(res.json, null, '  '), {}, true)
+          Common.writeFilePromise(Path.join(edit.path, CONST.MODULE_JSON_NAME), JSON.stringify(res.json, null, '  '), {}, true)
           .then(() => {
             Common.displayMessagesPromise(edit)
             .then(resolve)

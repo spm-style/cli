@@ -33,14 +33,14 @@ let downRecursiveModuleNameSearchPromise = (publish, currentDirectory) => {
     Fs.lstat(currentDirectory, (err, stats) => {
       if (err) { return reject(err) }
       if (!stats.isDirectory()) { return resolve(null) } else {
-        Common.getJsonFilePromise(`${currentDirectory}/${CONST.MODULE_JSON_NAME}`)
+        Common.getJsonFilePromise(Path.join(currentDirectory, CONST.MODULE_JSON_NAME))
         .then(json => {
           if (!json || (publish.name && json.name !== publish.name)) {
             Fs.readdir(currentDirectory, (err, files) => {
               if (err) { return reject(err) }
               let promises = []
               for (let file of files) {
-                promises.push(downRecursiveModuleNameSearchPromise(publish, `${currentDirectory}/${file}`))
+                promises.push(downRecursiveModuleNameSearchPromise(publish, Path.join(currentDirectory, file)))
               }
               Promise.all(promises)
               .then(resPublishes => {
@@ -72,10 +72,10 @@ let upRecursiveModuleNameSearchPromise = (publish, currentDirectory) => {
     } else if (currentDirectory.indexOf(publish.projectPath || CONST.USER_DIRECTORY) === -1) {
       downRecursiveModuleNameSearchPromise(publish, publish.projectPath || CONST.USER_DIRECTORY).then(resolve).catch(reject)
     } else {
-      Common.getJsonFilePromise(`${currentDirectory}/${CONST.MODULE_JSON_NAME}`)
+      Common.getJsonFilePromise(Path.join(currentDirectory, CONST.MODULE_JSON_NAME))
       .then(json => {
         if (!json || (publish.name && json.name !== publish.name)) {
-          upRecursiveModuleNameSearchPromise(publish, currentDirectory.substring(0, currentDirectory.lastIndexOf('/')))
+          upRecursiveModuleNameSearchPromise(publish, Path.dirname(currentDirectory))
           .then(resolve)
           .catch(reject)
         } else {
@@ -98,7 +98,7 @@ let getModuleJsonPromise = (publish) => {
       .then(path => {
         if (!path) { return reject(new Error(CONST.ERROR.SPM_MODULE_NOT_FOUND)) }
         publish.path = path
-        Common.getJsonFilePromise(`${path}/${CONST.MODULE_JSON_NAME}`)
+        Common.getJsonFilePromise(Path.join(path, CONST.MODULE_JSON_NAME))
         .then(json => {
           publish.json = json
           return resolve(publish)
@@ -175,7 +175,7 @@ let checkModuleJsonPromise = (publish) => {
 let parseIgnoreFilePromise = (publish) => {
   if (publish.debug) { Debug() }
   return new Promise((resolve, reject) => {
-    Fs.readFile(`${publish.path}/.spmignore`, 'utf8', (err, data) => {
+    Fs.readFile(Path.join(publish.path, '.spmignore'), 'utf8', (err, data) => {
       if (err && err.code !== 'ENOENT') { return reject(err) } else if (err) { return resolve([]) }
       let ignores = []
       for (let ignore of data.split('\n')) { if (ignore.length) { ignores.push(ignore) } }
@@ -205,7 +205,7 @@ let mapDependenciesClassesPromise = (publish) => {
     let promiseList = []
     publish.dependencies = publish.json.dependencies || {}
     for (let dependency in publish.json.dependencies) {
-      promises.push(Common.getJsonFilePromise(`${publish.path}/spm_modules/${dependency}/module-spm.json`))
+      promises.push(Common.getJsonFilePromise(Path.join(publish.path, 'spm_modules', dependency, 'module-spm.json')))
       promiseList.push(dependency)
     }
     Promise.all(promises)
@@ -236,8 +236,8 @@ let mapDependenciesClassesPromise = (publish) => {
 let publicationCopyPromise = (publish) => {
   if (publish.debug) { Debug() }
   return new Promise((resolve, reject) => {
-    Common.FolderCopyPromise(publish.path, `${publish.path}/.tmp_spm`, file => {
-      for (let ignoredFile of publish.ignores) { if (Path.relative(file, `${publish.path}/${ignoredFile}`) === '') { return false } }
+    Common.FolderCopyPromise(publish.path, Path.join(publish.path, '.tmp_spm'), file => {
+      for (let ignoredFile of publish.ignores) { if (Path.relative(file, Path.join(publish.path, ignoredFile)) === '') { return false } }
       return true
     })
     .then(() => {
@@ -252,14 +252,14 @@ let prepareWorkspacePromise = (publish) => {
   return new Promise((resolve, reject) => {
     cleanWorkspacePromise(publish)
     .then(() => {
-      Fs.mkdir(`${publish.path}/.tmp_spm`, err => {
+      Fs.mkdir(Path.join(publish.path, '.tmp_spm'), err => {
         if (err && err.code !== 'EEXIST') {
           return reject(err)
-        } else if (err) { return reject(new Error(`${publish.path}/.tmp_spm forbidden name in publication - please delete before publication`)) }
-        Fs.mkdir(`${publish.path}/.tmp_spm/.sass_spm`, err => {
+        } else if (err) { return reject(new Error(`${Path.join(publish.path, '.tmp_spm')} forbidden name in publication - please delete before publication`)) }
+        Fs.mkdir(Path.join(publish.path, '.tmp_spm', '.sass_spm'), err => {
           if (err && err.code !== 'EEXIST') {
             return reject(err)
-          } else if (err) { return reject(new Error(`${publish.path}/.tmp_spm forbidden name in publication - please delete before publication`)) }
+          } else if (err) { return reject(new Error(`${Path.join(publish.path, '.tmp_spm')} forbidden name in publication - please delete before publication`)) }
           processIgnoredFilesPromise(publish)
           .then(mapDependenciesClassesPromise)
           .then(publicationCopyPromise)
@@ -364,12 +364,12 @@ let promptUserPromise = (publish) => {
 let createTgzPromise = (publish) => {
   if (publish.debug) { Debug() }
   return new Promise((resolve, reject) => {
-    Common.deleteFolderRecursivePromise(`${publish.path}/.tmp_spm/spm_modules`, true)
+    Common.deleteFolderRecursivePromise(Path.join(publish.path, '.tmp_spm', 'spm_modules'), true)
     .then(() => {
-      Fs.mkdir(`${publish.path}/.tmp_spm_publish`, err => {
+      Fs.mkdir(Path.join(publish.path, '.tmp_spm_publish'), err => {
         if (err && err.code !== 'EEXIST') { return reject(err) }
-        Common.tgzFilePromise(`${publish.path}/.tmp_spm`, `${publish.path}/.tmp_spm_publish/${publish.name}.tgz`,
-          (path, stat) => !['.tmp_spm/spm_modules'].includes(path))
+        Common.tgzFilePromise(Path.join(publish.path, '.tmp_spm'), Path.join(publish.path, '.tmp_spm_publish', `${publish.name}.tgz`),
+          (path, stat) => ![Path.join('.tmp_spm', 'spm_modules')].includes(path))
         .then(() => {
           return resolve(publish)
         })
@@ -386,7 +386,7 @@ let sendPublicationToRegistryPromise = (publish) => {
   return new Promise((resolve, reject) => {
     let formData = { package: JSON.stringify(publish.apiPackage) }
     if (publish.debug) console.log('package', formData.package)
-    formData.module = Fs.createReadStream(`${publish.path}/.tmp_spm_publish/${publish.name}.tgz`)
+    formData.module = Fs.createReadStream(Path.join(publish.path, '.tmp_spm_publish', `${publish.name}.tgz`))
     let spinner = new Spinner('sending to registry...', 'monkey')
     spinner.start()
     Request.put({
@@ -397,17 +397,19 @@ let sendPublicationToRegistryPromise = (publish) => {
       formData: formData
     }, function (error, response, body) {
       if (error) { return reject(spinner.errorStop(`there was an error sending data to spm registry - please try again later or contact our support\n${error}`)) }
-      let res = JSON.parse(body)
-      if (Math.floor(res.statusCode / 100) >= 4) {
-        return reject(spinner.errorStop(res.message))
-      } else {
-        spinner.successStop(`module publication correctly processed by spm registry`)
-        if (res.name !== publish.name) {
-          publish.warnings.push(`your package ${publish.name} has been renamed to ${res.name} by spm registry`)
+      try {
+        let res = JSON.parse(body)
+        if (Math.floor(res.statusCode / 100) >= 4) {
+          return reject(spinner.errorStop(res.message))
+        } else {
+          spinner.successStop(`module publication correctly processed by spm registry`)
+          if (res.name !== publish.name) {
+            publish.warnings.push(`your package ${publish.name} has been renamed to ${res.name} by spm registry`)
+          }
+          publish.successes.push(`${res.name}@${res.version} has been successfully created`)
+          return resolve(publish)
         }
-        publish.successes.push(`${res.name}@${res.version} has been successfully created`)
-        return resolve(publish)
-      }
+      } catch (e) { return reject(e) }
     })
     .on('error', err => {
       return reject(spinner.errorStop(`there was an error sending data to spm registry - please try again later or contact our support\n${err}`))
@@ -419,9 +421,9 @@ let sendPublicationToRegistryPromise = (publish) => {
 let cleanWorkspacePromise = (publish) => {
   if (publish.debug) { Debug() }
   return new Promise((resolve, reject) => {
-    Common.deleteFolderRecursivePromise(`${publish.path}/.tmp_spm`, true)
+    Common.deleteFolderRecursivePromise(Path.join(publish.path, '.tmp_spm'), true)
     .then(() => {
-      Common.deleteFolderRecursivePromise(`${publish.path}/.tmp_spm_publish`, true)
+      Common.deleteFolderRecursivePromise(Path.join(publish.path, '.tmp_spm_publish'), true)
       .then(() => {
         return resolve(publish)
       })

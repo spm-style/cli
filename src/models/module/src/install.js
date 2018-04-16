@@ -45,9 +45,9 @@ let createModuleDirectoryPromise = (install) => {
         if (err && err.code !== 'EEXIST') { return reject(err) }
         install.pathRegistry = CONST.REGISTRY_PATH
         install.pathFinal = install.pathModule || install.pathProject || install.pathInitial
-        install.pathJson = install.pathModule ? `${install.pathModule}/${CONST.MODULE_JSON_NAME}` : install.pathProject ? `${install.pathProject}/${CONST.PROJECT_JSON_NAME}` : null
+        install.pathJson = install.pathModule ? Path.join(install.pathModule, CONST.MODULE_JSON_NAME) : install.pathProject ? Path.join(install.pathProject, CONST.PROJECT_JSON_NAME) : null
         if (!install.pathJson && !install.jsStandard) { return reject(new Error(`please precise if your install is modular or legacy with --js-standard options`)) }
-        install.pathModules = install.isRegistry ? install.pathRegistry : `${install.pathFinal}/spm_modules`
+        install.pathModules = install.isRegistry ? install.pathRegistry : Path.join(install.pathFinal, 'spm_modules')
         return resolve(install)
       })
     })
@@ -64,26 +64,28 @@ let getDependenciesInstallPromise = (install) => {
         if (!json) {
           return reject(new Error(`${install.pathModule ? 'module' : 'project'} detected but no json file in ${install.pathModule || install.pathProject}`))
         } else {
-          install.jsonFile = JSON.parse(JSON.stringify(json))
-          install.files = install.jsonFile.files
-          install.jsStandard = install.jsonFile.jsStandard
-          if (!install.jsStandard) {
-            return reject(new Error(`missing js standard in ${install.pathJson} - update with spm module edit --js-standard <standard>, using modular or legacy`))
-          }
-          if (!install.style) {
-            install.style = json.style
-            install.warnings.push(`default style has been set to ${json.style}`)
-          }
-          if (install.names.length === 0) {
-            if (install.isSave) { install.warnings.push(`Are you trying to save what's already save ? inc3p7i0n a13rt ;-)`) }
-            if (json.dependencies && typeof json.dependencies === 'object' && Object.keys(json.dependencies).length) {
-              install.dependencies = json.dependencies
+          try {
+            install.jsonFile = JSON.parse(JSON.stringify(json))
+            install.files = install.jsonFile.files
+            install.jsStandard = install.jsonFile.jsStandard
+            if (!install.jsStandard) {
+              return reject(new Error(`missing js standard in ${install.pathJson} - update with spm module edit --js-standard <standard>, using modular or legacy`))
+            }
+            if (!install.style) {
+              install.style = json.style
+              install.warnings.push(`default style has been set to ${json.style}`)
+            }
+            if (install.names.length === 0) {
+              if (install.isSave) { install.warnings.push(`Are you trying to save what's already save ? inc3p7i0n a13rt ;-)`) }
+              if (json.dependencies && typeof json.dependencies === 'object' && Object.keys(json.dependencies).length) {
+                install.dependencies = json.dependencies
+                return resolve(install)
+              } else { return reject(new Error(`no dependency to install from ${install.pathJson}`)) }
+            } else {
+              install.addDependenciesNames(install.names)
               return resolve(install)
-            } else { return reject(new Error(`no dependency to install from ${install.pathJson}`)) }
-          } else {
-            install.addDependenciesNames(install.names)
-            return resolve(install)
-          }
+            }
+          } catch (e) { return reject(e) }
         }
       })
       .catch(reject)
@@ -101,22 +103,24 @@ let getJsonPackageFromAPIPromise = (install) => {
     let url = `${CONST.PACKAGE_URL}/install/${install.name}`
     if (install.version && install.version !== true) { url += `?version=${install.version}` }
     Request(url, (err, response, body) => {
-      body = JSON.parse(body)
-      if (err) {
-        if (err.code === 'ECONNREFUSED') { return reject(new Error('Server down check method getJsonApiPromise')) } else { return reject(err) }
-      } else if (Math.floor(body.statusCode / 100) >= 4) {
-        return reject(new Error(`API error for package ${install.name}: ${body.message}`))
-      } else {
-        install.jsonFile = body
-        install.dependencies = {}
-        for (let dependency of body.dependencies) {
-          install.dependencies[dependency.name] = dependency.version
+      try {
+        body = JSON.parse(body)
+        if (err) {
+          if (err.code === 'ECONNREFUSED') { return reject(new Error('Server down check method getJsonApiPromise')) } else { return reject(err) }
+        } else if (Math.floor(body.statusCode / 100) >= 4) {
+          return reject(new Error(`API error for package ${install.name}: ${body.message}`))
+        } else {
+          install.jsonFile = body
+          install.dependencies = {}
+          for (let dependency of body.dependencies) {
+            install.dependencies[dependency.name] = dependency.version
+          }
+          install.jsonFile.dependencies = install.dependencies // added
+          install.files = body.files
+          install.version = body.version
+          return resolve(install)
         }
-        install.jsonFile.dependencies = install.dependencies // added
-        install.files = body.files
-        install.version = body.version
-        return resolve(install)
-      }
+      } catch (e) { return reject(e) }
     })
   })
 }
@@ -144,22 +148,22 @@ let alreadyInList = (type, install) => {
       }
       break
   }
-  if (install.bestPath) { install.target = `${install.bestPath}/${install.name}` }
+  if (install.bestPath) { install.target = Path.join(install.bestPath, install.name) }
   return false
 }
 
 /* Checks if a module is already in the registry PROMISE */
 let isInRegistryPromise = (install) => {
   return new Promise((resolve, reject) => {
-    let registryPath = `${CONST.REGISTRY_PATH}/${install.name}/${install.version}`
+    let registryPath = Path.join(CONST.REGISTRY_PATH, install.name, install.version)
     Fs.access(registryPath, err => {
       if (err && err.code !== 'ENOENT') {
         return reject(err)
       } else if (err) {
-        if (install.isRegistry) { install.target = `${CONST.REGISTRY_PATH}/${install.name}/${install.version}` }
+        if (install.isRegistry) { install.target = Path.join(CONST.REGISTRY_PATH, install.name, install.version) }
         return resolve(false) // add check for package.json + another file at root level
       } else {
-        install.target = `${CONST.REGISTRY_PATH}/${install.name}/${install.version}`
+        install.target = Path.join(CONST.REGISTRY_PATH, install.name, install.version)
         return resolve(true)
       }
     })
@@ -170,14 +174,14 @@ let isInRegistryPromise = (install) => {
 let isInLocalRecursivePromise = (install, currentDirectory = install.path, previousPath = null) => {
   return new Promise((resolve, reject) => {
     if (!install.secondLevel && Path.relative(currentDirectory, install.pathFinal).startsWith('..')) {
-      Common.getJsonFilePromise(`${currentDirectory}/${CONST.MODULE_JSON_NAME}`)
+      Common.getJsonFilePromise(Path.join(currentDirectory, CONST.MODULE_JSON_NAME))
       .then(json => {
         if (json) {
           if (json.version === install.version) {
             install.target = `${currentDirectory}`
             return resolve(true)
           } else if (previousPath) {
-            install.bestPath = install.bestPath || `${previousPath}/spm_modules`
+            install.bestPath = install.bestPath || Path.join(previousPath, 'spm_modules')
           } else {
             install.enable = false
             install.warnings.push(`${install.name} already in project with version ${json.version} - you can replace it using install --force`)
@@ -185,15 +189,14 @@ let isInLocalRecursivePromise = (install, currentDirectory = install.path, previ
           }
         }
         previousPath = currentDirectory
-        currentDirectory = currentDirectory.substring(0, currentDirectory.lastIndexOf('/'))
-        currentDirectory = currentDirectory.substring(0, currentDirectory.lastIndexOf('/'))
+        currentDirectory = Path.dirname(Path.dirname(currentDirectory))
         isInLocalRecursivePromise(install, currentDirectory, previousPath)
         .then(resolve)
         .catch(reject)
       })
       .catch(reject)
     } else {
-      install.bestPath = install.bestPath || `${install.pathFinal}/spm_modules`
+      install.bestPath = install.bestPath || Path.join(install.pathFinal, 'spm_modules')
       return resolve(false)
     }
   })
@@ -273,14 +276,14 @@ let installDependencyPromise = (install) => {
         // if the dependency is already correctly located
         if (Path.relative(`${install.path}`, install.target) === '') {
           // if the 1st level dependency already exists
-          if (Path.relative(install.path, `${install.pathModules}/${install.name}`) === '') {
+          if (Path.relative(install.path, Path.join(install.pathModules, install.name)) === '') {
             install.warnings.push(`package ${install.name}@${install.version} already in project - use --force for reinstallation`)
           }
           return resolve(install)
         } else {
           // create a symlink
-          if (install.debug) { console.log('>> ln -s (1)', `${install.path}/${install.name}`, 'to', install.target) }
-          Common.createSymlinkPromise(`${install.path}/${install.name}`, install.target)
+          if (install.debug) { console.log('>> ln -s (1)', Path.join(install.path, install.name), 'to', install.target) }
+          Common.createSymlinkPromise(Path.join(install.path, install.name), install.target)
           .then(() => resolve(install))
           .catch(reject)
         }
@@ -290,7 +293,7 @@ let installDependencyPromise = (install) => {
         install.downloadList.push({ name: install.name, version: install.version, path: install.path || install.pathFinal })
         if (install.debug) { console.log('>> downloading:', `${install.name}@${install.version}`, 'in', install.target) }
         Common.downloadModuleSpmPromise(install.name, install.version, install.target)
-        .then(() => Common.writeContent(JSON.stringify(install.jsonFile, null, '  ') + '\n', `${install.target}/${CONST.MODULE_JSON_NAME}`, '', install))
+        .then(() => Common.writeContent(JSON.stringify(install.jsonFile, null, '  ') + '\n', Path.join(install.target, CONST.MODULE_JSON_NAME), '', install))
         .then(() => Css.defineParametersOrderPromise(install, install))
         .then(() => installDependenciesPromise(install, false))
         .then(() => {
@@ -327,16 +330,16 @@ let installDependenciesPromise = (install, topDependency = true) => {
   return new Promise((resolve, reject) => {
     let promises = []
     if (Object.keys(install.dependencies).length) {
-      Fs.mkdir(`${install.path || install.pathFinal}/spm_modules`, err => {
+      Fs.mkdir(Path.join(install.path || install.pathFinal, 'spm_modules'), err => {
         if (err && err.code !== 'EEXIST') { return reject(err) }
-        if (install.debug) { console.log('>> mkdir', `${install.path || install.pathFinal}/spm_modules`) }
+        if (install.debug) { console.log('>> mkdir', `${install.path || Path.join(install.pathFinal, 'spm_modules')}`) }
         for (let dependency in install.dependencies) {
           let installBis = Object.assign({}, install)
           installBis.name = dependency
           installBis.lowerName = Common.firstLetterLowerCase(dependency)
           installBis.upperName = Common.firstLetterUpperCase(dependency)
           installBis.version = install.dependencies[dependency]
-          installBis.path = `${install.path || install.pathFinal}/spm_modules/${installBis.name}`
+          installBis.path = `${install.path || Path.join(install.pathFinal, 'spm_modules', installBis.name)}`
           installBis.jsContent = {}
           installBis.children = []
           promises.push(installDependencyPromise(installBis))
@@ -364,7 +367,7 @@ let installDependenciesPromise = (install, topDependency = true) => {
 let initInstancesPromise = (install) => {
   if (install.debug) { Debug() }
   return new Promise((resolve, reject) => {
-    Fs.mkdir(`${install.pathFinal}/${CONST.INSTANCE_FOLDER}`, err => {
+    Fs.mkdir(Path.join(install.pathFinal, CONST.INSTANCE_FOLDER), err => {
       if (err && err.code !== 'EEXIST') { return reject(err) }
       let promises = []
       promises.push(Css.processInstancesPromise(install))
@@ -388,8 +391,8 @@ let cssFilesConvertionPromise = (install) => {
     }
     Promise.all(promises)
     .then(() => {
-      if (install.debug) { console.log('>> (css) convert', `${install.path || install.pathFinal}/${CONST.INSTANCE_FOLDER}/${CONST.INSTANCE_FOLDER}.scss to .${CONST.INSTANCE_FOLDER}.css`) }
-      Css.convertScssToCss(`${install.path || install.pathFinal}/${CONST.INSTANCE_FOLDER}/${CONST.INSTANCE_FOLDER}.scss`, `${install.path || install.pathFinal}/${CONST.INSTANCE_FOLDER}/.${CONST.INSTANCE_FOLDER}.css`)
+      if (install.debug) { console.log('>> (css) convert', `${Path.join(install.path || install.pathFinal, CONST.INSTANCE_FOLDER, CONST.INSTANCE_FOLDER + '.scss')} to .${CONST.INSTANCE_FOLDER}.css`) }
+      Css.convertScssToCss(Path.join(install.path || install.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.scss`), Path.join(install.path || install.pathFinal, CONST.INSTANCE_FOLDER, `.${CONST.INSTANCE_FOLDER}.css`))
       .then(() => resolve(install))
       .catch(reject)
     })
@@ -415,7 +418,7 @@ let processSavedModulesPromise = (install) => {
       newDependencies[dependency] = install.jsonFile.dependencies[dependency]
     }
     install.jsonFile.dependencies = newDependencies
-    Fs.writeFile(`${install.pathFinal}/${CONST.MODULE_JSON_NAME}`, JSON.stringify(install.jsonFile, null, '  '), err => {
+    Fs.writeFile(Path.join(install.pathFinal, CONST.MODULE_JSON_NAME), JSON.stringify(install.jsonFile, null, '  '), err => {
       if (err) { return reject(err) }
       install.successes.push(`${CONST.MODULE_JSON_NAME} updated with installed dependencies`)
       return resolve(install)

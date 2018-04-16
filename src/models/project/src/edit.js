@@ -1,4 +1,5 @@
 let Prompt = require('inquirer').prompt
+let Path = require('path')
 let Common = require('../../../lib/common')
 let CONST = require('../../../lib/const')
 let Debug = require('../../../lib/debug')
@@ -46,7 +47,7 @@ let getProjectJsonPromise = (edit) => {
     .then(path => {
       if (!path) { return reject(new Error(CONST.ERROR.SPM_PROJECT_NOT_FOUND)) }
       edit.path = path
-      Common.getJsonFilePromise(`${path}/${CONST.PROJECT_JSON_NAME}`)
+      Common.getJsonFilePromise(Path.join(path, CONST.PROJECT_JSON_NAME))
       .then(json => {
         edit.json = json
         return resolve(edit)
@@ -158,7 +159,7 @@ module.exports = (Program) => {
       getProjectJsonPromise(edit)
       .then(modifyVariableJsonPromise)
       .then(res => {
-        Common.writeFilePromise(`${edit.path}/${CONST.PROJECT_JSON_NAME}`, JSON.stringify(res.json, null, '  '), {}, true)
+        Common.writeFilePromise(Path.join(edit.path, CONST.PROJECT_JSON_NAME), JSON.stringify(res.json, null, '  '), {}, true)
         .then(() => {
           Common.displayMessagesPromise(edit)
           .then(resolve)

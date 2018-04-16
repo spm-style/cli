@@ -1,4 +1,5 @@
 let Fs = require('fs')
+let Path = require('path')
 let Prompt = require('inquirer').prompt
 let Js = require('../lib/js')
 let Css = require('../lib/css')
@@ -19,7 +20,7 @@ let defineGeneratePathsPromise = (generate) => {
       .then(path => {
         generate.pathModule = path
         generate.pathFinal = generate.pathModule || generate.pathProject || generate.pathInitial
-        generate.pathModules = `${generate.pathFinal}/spm_modules`
+        generate.pathModules = Path.join(generate.pathFinal, 'spm_modules')
         if (!generate.pathProject && !generate.pathModule) {
           generate.warnings.push('no module or project detected - generate in current path')
           Common.findModulesPromise(generate.pathInitial)
@@ -29,7 +30,7 @@ let defineGeneratePathsPromise = (generate) => {
             return resolve(generate)
           })
         } else {
-          generate.initialPackage = `${generate.pathFinal}/${generate.pathModule ? CONST.MODULE_JSON_NAME : CONST.PROJECT_JSON_NAME}`
+          generate.initialPackage = Path.join(generate.pathFinal, generate.pathModule ? CONST.MODULE_JSON_NAME : CONST.PROJECT_JSON_NAME)
           return resolve(generate)
         }
       })
@@ -101,7 +102,7 @@ let selectModulePromise = (generate) => {
             generate.moduleName = res
             generate.upperName = Common.firstLetterUpperCase(res)
             if (generate.assign && generate.nickname === res) { return reject(new Error(`variable ${generate.nickname} already assigned as module Class declaration`)) }
-            Common.getJsonFilePromise(`${generate.pathModules}/${res}/${CONST.MODULE_JSON_NAME}`)
+            Common.getJsonFilePromise(Path.join(generate.pathModules, res, CONST.MODULE_JSON_NAME))
             .then(json => {
               generate.jsonFile = json
               return resolve(generate)
@@ -184,7 +185,7 @@ let customizeVariablesPromise = (generate) => {
 /* creates instance folder, files and updates them */
 let processGenerateFilesPromise = (generate) => {
   return new Promise((resolve, reject) => {
-    Fs.mkdir(`${generate.pathFinal}/${CONST.INSTANCE_FOLDER}`, err => {
+    Fs.mkdir(Path.join(generate.pathFinal, CONST.INSTANCE_FOLDER), err => {
       if (err && err.code !== 'EEXIST') { return reject(err) }
       let promises = []
       promises.push(Css.generateInstancePromise(generate))

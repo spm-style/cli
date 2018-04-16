@@ -1,3 +1,4 @@
+let Path = require('path')
 let Request = require('request')
 let CONST = require('../../../lib/const')
 let Debug = require('../../../lib/debug')
@@ -12,15 +13,17 @@ let getJsonPackageFromAPIPromise = (clone) => {
     } else {
       let url = `${CONST.PACKAGE_URL}/install/${clone.name}`
       Request(url, (err, response, body) => {
-        body = JSON.parse(body)
-        if (err) {
-          if (err.code === 'ECONNREFUSED') { return reject(new Error('Server down check method getJsonApiPromise')) } else { return reject(err) }
-        } else if (Math.floor(body.statusCode / 100) >= 4) {
-          return reject(new Error(`API error for package ${clone.name}: ${body.message}`))
-        } else {
-          clone.version = body.version
-          return resolve(clone)
-        }
+        try {
+          body = JSON.parse(body)
+          if (err) {
+            if (err.code === 'ECONNREFUSED') { return reject(new Error('Server down check method getJsonApiPromise')) } else { return reject(err) }
+          } else if (Math.floor(body.statusCode / 100) >= 4) {
+            return reject(new Error(`API error for package ${clone.name}: ${body.message}`))
+          } else {
+            clone.version = body.version
+            return resolve(clone)
+          }
+        } catch (e) { return reject(e) }
       })
     }
   })
@@ -44,7 +47,7 @@ module.exports = (Program) => {
         warnings: []
       }
       getJsonPackageFromAPIPromise(clone)
-      .then(() => Common.downloadModuleSpmPromise(clone.name, clone.version, `${Common.getCurrentPath()}/${clone.name}`, true))
+      .then(() => Common.downloadModuleSpmPromise(clone.name, clone.version, Path.join(Common.getCurrentPath(), clone.name), true))
       .then(() => {
         clone.successes.push(`${clone.name} source files imported in ${clone.name} folder`)
         Common.displayMessagesPromise(clone)

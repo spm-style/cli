@@ -55,9 +55,9 @@ let writeFilePromise = (target, data, conf = {}, force = false) => {
 let findJsonPromise = (currentDirectory, file, stopDirectory) => {
   return new Promise((resolve, reject) => {
     if (!currentDirectory || currentDirectory.indexOf(stopDirectory) === -1) { return resolve(null) }
-    Fs.access(`${currentDirectory}/${file}`, Fs.constants.F_OK, err => {
+    Fs.access(Path.join(currentDirectory, file), Fs.constants.F_OK, err => {
       if (err) {
-        findJsonPromise(currentDirectory.substring(0, currentDirectory.lastIndexOf('/')), file, stopDirectory).then(resolve).catch(reject)
+        findJsonPromise(Path.dirname(currentDirectory), file, stopDirectory).then(resolve).catch(reject)
       } else {
         return resolve(currentDirectory)
       }
@@ -88,7 +88,7 @@ let findModulesPromise = (currentDirectory, stopDirectory = CONST.USER_DIRECTORY
     if (!currentDirectory || currentDirectory.index(stopDirectory) === -1) { return resolve(null) }
     Fs.stat(`${currentDirectory}/spm_modules`, (err, stats) => {
       if (err && err !== 'ENOENT') { return reject(err) } else if (err) {
-        findModulesPromise(currentDirectory.substring(0, currentDirectory.lastIndexOf('/')), stopDirectory)
+        findModulesPromise(Path.dirname(currentDirectory), stopDirectory)
         .then(resolve)
         .catch(reject)
       } else { return resolve(`${currentDirectory}/spm_modules`) }
@@ -101,7 +101,9 @@ let getJsonFilePromise = (filePath) => { // old name getPackageSpmFilePromise
   return new Promise((resolve, reject) => {
     Fs.readFile(filePath, (err, data) => {
       if (err && err.code !== 'ENOENT') { return reject(err) } else if (err) { return resolve(null) }
-      return resolve(JSON.parse(data))
+      try {
+        return resolve(JSON.parse(data))
+      } catch (e) { return reject(e) }
     })
   })
 }
@@ -109,7 +111,7 @@ let getJsonFilePromise = (filePath) => { // old name getPackageSpmFilePromise
 /* downloads packages from spm registry */
 let downloadModuleSpmPromise = (name, version, targetPath, source = false) => {
   return new Promise((resolve, reject) => {
-    if (!targetPath.startsWith('/')) { targetPath = `${__dirname}/${targetPath}` }
+    if (!Path.isAbsolute(targetPath)) { targetPath = Path.join(__dirname, targetPath) }
     Fs.mkdir(targetPath, err => {
       if (err && err.code !== 'EEXIST') { return reject(err) }
       Request.get(`${CONST.PUBLISH_URL}/${name}/${version}${source ? '/clone' : ''}`)
@@ -223,7 +225,7 @@ let deleteFolderRecursivePromise = (path, ignoreENOENT = false) => {
         Fs.readdir(path, (err, files) => {
           if (err && (!ignoreENOENT || err.code !== 'ENOENT')) { return reject(err) } else if (err && err.code === 'ENOENT') { return resolve(path) }
           let promises = []
-          for (let file of files) { promises.push(deleteFolderRecursivePromise(`${path}/${file}`, ignoreENOENT)) }
+          for (let file of files) { promises.push(deleteFolderRecursivePromise(Path.join(path, file), ignoreENOENT)) }
           Promise.all(promises)
           .then(() => {
             Fs.rmdir(path, err => {
@@ -247,7 +249,7 @@ let deleteFolderRecursivePromise = (path, ignoreENOENT = false) => {
 let deleteContentFolderRecursive = (path, callback, firstRecursive = true) => {
   if (Fs.existsSync(path)) {
     for (let file of Fs.readdirSync(path)) {
-      let currentPath = path + '/' + file
+      let currentPath = Path.join(path, file)
       if (Fs.lstatSync(currentPath).isDirectory()) {
         deleteContentFolderRecursive(currentPath, callback, false)
       } else {
@@ -284,8 +286,8 @@ let fileExistsPromise = (filePath) => {
 /* Path.relative cannot compute relative path between unexisting files */
 let unrealRelativePath = (file1, file2) => {
   if (!file1 || !file2) { return file2 }
-  let tab1 = file1.split('/')
-  let tab2 = file2.split('/')
+  let tab1 = file1.split(CONST.SEPARATOR)
+  let tab2 = file2.split(CONST.SEPARATOR)
   for (let i = 0; i < tab1.length || i < tab2.length; i++) {
     if (i < tab1.length) {
       if (tab1[i] === '.') {
@@ -309,36 +311,20 @@ let unrealRelativePath = (file1, file2) => {
   let j = i
   let res = ''
   while (i < tab1.length && tab1[i] !== '') {
-    res = res + '../'
+    res = res + `..${CONST.SEPARATOR}`
     i++
   }
   while (j < tab2.length) {
-    res = `${res}${tab2[j]}/`
+    res = `${res}${tab2[j]}${CONST.SEPARATOR}`
     j++
   }
-  while (res.endsWith('/')) { res = res.slice(0, -1) }
+  while (res.endsWith(CONST.SEPARATOR)) { res = res.slice(0, -1) }
   return res
 }
 
 /* removes '.' and '..' from input path */
 let cleanFilePath = (filePath) => {
-  let tab = filePath.split('/')
-  for (let i = 0; i < tab.length; i++) {
-    if (tab[i] === '.') {
-      tab.splice(i, 1)
-      i--
-    } else if (tab[i] === '..') {
-      tab.splice(i - 1, 2)
-    }
-  }
-  let res = tab.join('/')
-  while (res.endsWith('/')) { res = res.slice(0, -1) }
-  return res
-}
-
-/* reads and parses a json file */
-let parseJsonFileSync = (filePath) => {
-  return JSON.parse(Fs.readFileSync(filePath))
+  return Path.normalize(filePath)
 }
 
 /* transforms a string with capital first letter and other lowercase letters */
@@ -371,7 +357,7 @@ let defineMixinName = (filePath) => {
 /* generates scss instance file */
 let createScssInstancePromise = (install) => {
   return new Promise((resolve, reject) => {
-    Fs.readFile(`${install.pathFinal}/${CONST.INSTANCE_FOLDER}/${CONST.INSTANCE_FOLDER}.scss`, 'utf8', (err, data) => {
+    Fs.readFile(Path.join(install.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.scss`), 'utf8', (err, data) => {
       if (err && err.code !== 'ENOENT') { return reject(err) } else if (err) {
         // create the file from scratch
         let importData = ''
@@ -395,7 +381,7 @@ let createScssInstancePromise = (install) => {
       } else {
         // add in folder the correct instances
       }
-      Fs.writeFile(`${install.pathFinal}/${CONST.INSTANCE_FOLDER}/${CONST.INSTANCE_FOLDER}.scss`, data, err => {
+      Fs.writeFile(Path.join(install.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.scss`), data, err => {
         if (err) { return reject(err) }
         return resolve(install)
       })
@@ -467,11 +453,11 @@ let updateFilePromise = (item, use) => {
         data = ''
       }
       let useBis = Object.assign({}, use)
-      useBis.pathInstances = JSON.parse(JSON.stringify(use.pathInstances))
+      try { useBis.pathInstances = JSON.parse(JSON.stringify(use.pathInstances)) } catch (e) { return reject(e) }
       for (let pathInstance in useBis.pathInstances) {
         let toBeAdded = true
         for (let importedFile of detectedImports) {
-          if (Path.relative(`${item.substring(0, item.lastIndexOf('/'))}/${importedFile}`, pathInstance) === '') {
+          if (Path.relative(Path.join(Path.dirname(item), importedFile), pathInstance) === '') {
             delete useBis.pathInstances[pathInstance]
             useBis.warnings.push(`${use.pathInstances[pathInstance].instance} already imported in file ${use.usePathes[item]}`)
             toBeAdded = false
@@ -550,18 +536,10 @@ let displayMessagesPromise = (item) => {
 let tgzFilePromise = (input, output, filter = null) => {
   return new Promise((resolve, reject) => {
     let inputFolder, inputFile
-    while (input !== '' && input.endsWith('/')) { input = input.slice(0, -1) }
-    while (output !== '' && output.endsWith('/')) { output = output.slice(0, -1) }
-    if (!input.startsWith('/')) { input = `${__dirname}/${input}` }
-    if (!output.startsWith('/')) { output = `${__dirname}/${output}` }
-    let i = input.lastIndexOf('/')
-    if (i === -1) {
-      inputFolder = ''
-      inputFile = input
-    } else {
-      inputFolder = input.substring(0, i)
-      inputFile = input.substring(i + 1)
-    }
+    input = Path.normalize(input)
+    output = Path.normalize(output)
+    inputFolder = Path.dirname(input)
+    inputFile = Path.basename(input)
     let options = {
       file: output,
       C: inputFolder,
@@ -654,7 +632,7 @@ let updateRegistryModulesPromise = (item) => {
     .then(files1 => {
       item.moduleChoices = []
       for (let file of files1) {
-        if (Fs.statSync(`${item.pathModules}/${file}`).isDirectory()) { item.moduleChoices.push(file) }
+        if (Fs.statSync(Path.join(item.pathModules, file)).isDirectory()) { item.moduleChoices.push(file) }
       }
       readdirPromise(CONST.REGISTRY_PATH)
       .then(files => {
@@ -664,7 +642,7 @@ let updateRegistryModulesPromise = (item) => {
             files.splice(index, 1)
             index--
           } else {
-            promises.push(readdirPromise(`${CONST.REGISTRY_PATH}/${files[index]}`))
+            promises.push(readdirPromise(Path.join(CONST.REGISTRY_PATH, files[index])))
           }
         }
         Promise.all(promises)
@@ -675,7 +653,7 @@ let updateRegistryModulesPromise = (item) => {
             for (let version of versionsArray[i]) { finalVersion = isHigherVersion(finalVersion, version) }
             if (!finalVersion) { return reject(new Error(`issue with module ${files[i]}`)) }
             item.moduleChoices.push(files[i])
-            registryModulesToInstall.push(createSymlinkPromise(`${item.pathModules}/${files[i]}`, `${CONST.REGISTRY_PATH}/${files[i]}/${finalVersion}`, false))
+            registryModulesToInstall.push(createSymlinkPromise(Path.join(item.pathModules, files[i]), Path.join(CONST.REGISTRY_PATH, files[i], finalVersion), false))
           }
           Promise.all(registryModulesToInstall)
           .then(() => { return resolve(item) })
@@ -712,7 +690,6 @@ module.exports = {
   directoryExists,
   createFolderIfUnexistantSync,
   downloadModuleSpmPromise,
-  parseJsonFileSync,
   cleanValue,
   createInstancePromise,
   writeFilePromise,

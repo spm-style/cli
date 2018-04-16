@@ -1,5 +1,6 @@
 let Prompt = require('inquirer').prompt
 let Clear = require('clear')
+let Path = require('path')
 let Chalk = require('chalk')
 let Figlet = require('figlet')
 let Common = require('../../../lib/common')
@@ -115,7 +116,7 @@ let recapAndConfirmPromise = (create) => {
     let project = new Models.Project(create)
     create.json = project
     if (!create.default) {
-      console.log(`About to write to ${create.path}/project-spm.json`)
+      console.log(`About to write to ${Path.join(create.path, 'project-spm.json')}`)
       console.log(JSON.stringify(project, null, '  '))
       Common.promptConfirmation(project, true)
       .then(() => resolve(create))
@@ -175,7 +176,7 @@ let createProjectFilePromise = (create) => {
     let promises = []
     for (let file of filesToCreate) {
       if (file.toCreate) {
-        promises.push(Common.writeFilePromise(`${create.path}/${file.name}`, file.content, create, file.toForce))
+        promises.push(Common.writeFilePromise(Path.join(create.path, file.name), file.content, create, file.toForce))
       } else {
         create.warnings.push(`file ${file.name} not created as requested`)
       }

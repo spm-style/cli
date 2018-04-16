@@ -1,4 +1,5 @@
 let Fs = require('fs')
+let Path = require('path')
 let Common = require('../../../lib/common')
 let CONST = require('../../../lib/const')
 
@@ -13,7 +14,7 @@ module.exports = (Program) => {
       Common.findModuleJsonPromise(Common.getCurrentPath())
       .then(path => {
         if (!path) { return reject(new Error(CONST.ERROR.SPM_MODULE_NOT_FOUND)) }
-        Fs.readFile(`${path}/${CONST.MODULE_JSON_NAME}`, 'utf8', (err, data) => {
+        Fs.readFile(Path.join(path, CONST.MODULE_JSON_NAME), 'utf8', (err, data) => {
           if (err) { return reject(err) }
           console.log(data)
           return resolve(data)

@@ -38,13 +38,15 @@ module.exports = (Program) => {
             }, (err, res, body) => {
               if (err) { return reject(err) }
               if (options.debug) { Debug(body) }
-              let json = JSON.parse(body)
-              if (json.statusCode >= 400) {
-                return reject(new Error(json.message))
-              } else {
-                console.log(`\n${Chalk.hex(CONST.SUCCESS_COLOR)('SUCCESS')}: ${json.message}\n`)
-                return resolve(module)
-              }
+              try {
+                let json = JSON.parse(body)
+                if (json.statusCode >= 400) {
+                  return reject(new Error(json.message))
+                } else {
+                  console.log(`\n${Chalk.hex(CONST.SUCCESS_COLOR)('SUCCESS')}: ${json.message}\n`)
+                  return resolve(module)
+                }
+              } catch (e) { return reject(e) }
             })
           })
           .catch(reject)

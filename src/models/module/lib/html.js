@@ -226,7 +226,7 @@ let patternFinderPromise = (item, projectPath, mainClass) => {
           if (err) { return reject(err) }
           let promises = []
           for (let file of files) {
-            promises.push(patternFinderPromise(item, `${projectPath}/${file}`, mainClass))
+            promises.push(patternFinderPromise(item, Path.join(projectPath, file), mainClass))
           }
           Promise.all(promises)
           .then(results => {
@@ -279,7 +279,7 @@ let validatorPromise = (item, filePath, mainClass, validation = true, all = fals
 let fileCheckerPromise = (publish) => {
   if (publish.debug) { Debug() }
   return new Promise((resolve, reject) => {
-    Fs.access(`${publish.path}/${publish.json.files.index}`, Fs.constants.F_OK, (err) => {
+    Fs.access(Path.join(publish.path, publish.json.files.index), Fs.constants.F_OK, (err) => {
       if (err && !publish.projectPath) {
         return reject(new Error(`reference html file not found in your module`))
       } else if (err || publish.htmlChecker) {
@@ -294,14 +294,14 @@ let fileCheckerPromise = (publish) => {
               alreadyAdded.push(pattern.str)
             }
           }
-          Fs.writeFile(`${publish.path}/${publish.json.files.index}`, data, err => {
+          Fs.writeFile(Path.join(publish.path, publish.json.files.index), data, err => {
             if (err) { return reject(err) }
             return reject(new Error(`conflicts identified in your file - please validate ${publish.json.files.index} and publish again`))
           })
         })
         .catch(reject)
       } else {
-        validatorPromise(publish, `${publish.path}/${publish.json.files.index}`, publish.json.mainClass)
+        validatorPromise(publish, Path.join(publish.path, publish.json.files.index), publish.json.mainClass)
         .then(pattern => {
           publish.dom = pattern[0].str
           return resolve(publish)
@@ -316,12 +316,12 @@ let fileCheckerPromise = (publish) => {
 let processInstancesPromise = (install) => {
   if (install.debug) { Debug() }
   return new Promise((resolve, reject) => {
-    Fs.readFile(`${install.pathFinal}/${install.files.index}`, 'utf8', (err, data) => {
+    Fs.readFile(Path.join(install.pathFinal, install.files.index), 'utf8', (err, data) => {
       if (err && err.code !== 'ENOENT') { return reject(err) } else if (err) { return resolve(install) }
       // <script type="module"> not operational so far with some browsers so not included in code
       let index, start, previous, previousEnd
       if ((index = data.indexOf('</body>')) === -1) { return resolve(install) }
-      let path = Path.relative(Path.dirname(`${install.pathFinal}/${install.files.index}`), `${install.pathFinal}/${CONST.INSTANCE_FOLDER}/${CONST.INSTANCE_FOLDER}.js`)
+      let path = Path.relative(Path.dirname(Path.join(install.pathFinal, install.files.index)), Path.join(install.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.js`))
       let jsScriptType = install.jsStandard === 'modular' ? 'type="module" ' : ''
       if (data.indexOf(`<script ${jsScriptType}src="${path}"></script>\n`) !== -1) { // ${data.substring(previous + 1, previousEnd)}
         index = data.indexOf(`<script ${jsScriptType}src="${path}"></script>\n`)
@@ -342,14 +342,14 @@ let processInstancesPromise = (install) => {
       let addedContent = ''
       for (let dependency of install.children) {
         if (dependency.added) {
-          path = Path.relative(Path.dirname(`${install.pathFinal}/${install.files.index}`), `${dependency.path}/${dependency.files.script}`)
+          path = Path.relative(Path.dirname(Path.join(install.pathFinal, install.files.index)), Path.join(dependency.path, dependency.files.script))
           if (data.indexOf(`${data.substring(previous + 1, previousEnd)}<script ${jsScriptType}src="${path}"></script>\n`) === -1) {
             addedContent += `${data.substring(previous + 1, previousEnd)}<script ${jsScriptType}src="${path}"></script>\n`
           }
         }
       }
       data = `${data.substring(0, start + 1)}${addedContent}${data.substring(start + 1)}`
-      Fs.writeFile(`${install.pathFinal}/${install.files.index}`, data, err => {
+      Fs.writeFile(Path.join(install.pathFinal, install.files.index), data, err => {
         if (err) { return reject(err) }
         return resolve(install)
       })
@@ -361,11 +361,11 @@ let processInstancesPromise = (install) => {
 /* creates or updates the adequate html file */
 let generateInstancePromise = (generate) => {
   return new Promise((resolve, reject) => {
-    Fs.readFile(`${generate.pathFinal}/${generate.jsonFile.files.index}`, 'utf8', (err, data) => {
+    Fs.readFile(Path.join(generate.pathFinal, generate.jsonFile.files.index), 'utf8', (err, data) => {
       if (err && err.code !== 'ENOENT') { return reject(err) } else if (err) { return resolve(generate) }
       let index, start, previous, previousEnd
       if ((index = data.indexOf('</body>')) === -1) { return resolve(generate) }
-      let path = Path.relative(Path.dirname(`${generate.pathFinal}/${generate.jsonFile.files.index}`), `${generate.pathFinal}/${CONST.INSTANCE_FOLDER}/${CONST.INSTANCE_FOLDER}.js`)
+      let path = Path.relative(Path.dirname(Path.join(generate.pathFinal, generate.jsonFile.files.index)), Path.join(generate.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.js`))
       let jsScriptType = generate.jsStandard === 'modular' ? 'type="module" ' : ''
       if (data.indexOf(`<script ${jsScriptType}src="${path}"></script>\n`) !== -1) {
         start = index
@@ -376,7 +376,7 @@ let generateInstancePromise = (generate) => {
         previousEnd = previous + 1
         while ([' ', '\t'].includes(data[previousEnd])) { previousEnd++ }
         data = `${data.substring(0, start + 1)}${data.substring(previous + 1, previousEnd)}<script ${jsScriptType}src="${path}"></script>\n${data.substring(start + 1)}`
-        Fs.writeFile(`${generate.pathFinal}/${generate.jsonFile.files.index}`, data, err => {
+        Fs.writeFile(Path.join(generate.pathFinal, generate.jsonFile.files.index), data, err => {
           if (err) { return reject(err) }
           return resolve(generate)
         })

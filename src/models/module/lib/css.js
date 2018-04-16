@@ -194,7 +194,7 @@ let recursiveCheckModule = (filePath, publish) => {
       }
       let promises = []
       for (let module of dataAtClose) {
-        promises.push(recursiveCheckModule(`${filePath.substring(0, filePath.lastIndexOf('/'))}/${module}`, publish))
+        promises.push(recursiveCheckModule(Path.join(Path.dirname(filePath), module), publish))
       }
       Promise.all(promises)
       .then(() => { return resolve(publish) })
@@ -208,16 +208,16 @@ let scssToCssForCheck = (publish) => {
   if (publish.debug) { Debug() }
   return new Promise((resolve, reject) => {
     if (publish.json.style === 'scss') {
-      Fs.writeFile(`${publish.path}/.tmp_spm/.sass_spm/style.scss`, `@import '../${publish.json.files.style}';`, err => {
+      Fs.writeFile(Path.join(publish.path, '.tmp_spm', '.sass_spm', 'style.scss'), `@import '../${publish.json.files.style}';`, err => {
         if (err) { return reject(err) }
         Sass.render({
-          file: `${publish.path}/.tmp_spm/.sass_spm/style.scss`,
-          outFile: `${publish.path}/.tmp_spm/.sass_spm/result.css`
+          file: Path.join(publish.path, '.tmp_spm', '.sass_spm', 'style.scss'),
+          outFile: Path.join(publish.path, '.tmp_spm', '.sass_spm', 'result.css')
         }, function (error, result) {
           if (!error) {
-            Fs.writeFile(`${publish.path}/.tmp_spm/.sass_spm/result.css`, result.css, function (err) {
+            Fs.writeFile(Path.join(publish.path, '.tmp_spm', '.sass_spm', 'result.css'), result.css, function (err) {
               if (!err) {
-                checkClass(`${publish.path}/.tmp_spm/.sass_spm/result.css`, result.css.toString(), publish)
+                checkClass(Path.join(publish.path, '.tmp_spm', '.sass_spm', 'result.css'), result.css.toString(), publish)
                 .then(() => resolve(publish))
                 .catch(reject)
               } else { return reject(new Error('error while converting scss file to css')) }
@@ -226,9 +226,9 @@ let scssToCssForCheck = (publish) => {
         })
       })
     } else {
-      Fs.readFile(`${publish.path}/.tmp_spm/${publish.json.files.style}`, 'utf8', (err, data) => {
+      Fs.readFile(Path.join(publish.path, '.tmp_spm', publish.json.files.style), 'utf8', (err, data) => {
         if (err) { return reject(err) }
-        checkClass(`${publish.path}/.tmp_spm/${publish.json.files.style}`, data, publish)
+        checkClass(Path.join(publish.path, '.tmp_spm', publish.json.files.style), data, publish)
         .then(() => resolve(publish))
         .catch(reject)
       })
@@ -277,7 +277,7 @@ let unusedDependencies = (publish) => {
     for (let dependency in dependencies) {
       let flag = false
       for (let ressource of publish.ressources) {
-        if (Path.relative(`${publish.path}/spm_modules/${dependency}`, ressource.substring(0, ressource.lastIndexOf('/'))) === '') {
+        if (Path.relative(Path.join(publish.path, 'spm_modules', dependency), Path.dirname(ressource)) === '') {
           flag = true
           break
         }
@@ -298,7 +298,7 @@ let unusedDependencies = (publish) => {
 let clearspmModulesTmpPromise = (publish) => {
   if (publish.debug) { Debug() }
   return new Promise((resolve, reject) => {
-    Common.deleteFolderRecursivePromise(`${publish.path}/.tmp_spm/.sass_spm`, true)
+    Common.deleteFolderRecursivePromise(Path.join(publish.path, '.tmp_spm', '.sass_spm'), true)
     .then(() => { return resolve(publish) })
     .catch(reject)
   })
@@ -309,7 +309,7 @@ let fileCheckerPromise = (publish) => {
   if (publish.debug) { Debug() }
   return new Promise((resolve, reject) => {
     publish.ressources = []
-    recursiveCheckModule(`${publish.path}/${publish.json.files.style}`, publish)
+    recursiveCheckModule(Path.join(publish.path, publish.json.files.style), publish)
     .then(scssToCssForCheck)
     .then(unusedDependencies)
     .then(clearspmModulesTmpPromise)
@@ -323,7 +323,7 @@ let defineParametersOrderPromise = (install) => {
   if (install.debug) { Debug() }
   return new Promise((resolve, reject) => {
     try {
-      Fs.readFile(`${install.target}/${install.files.style}`, 'utf8', (err, data) => {
+      Fs.readFile(Path.join(install.target, install.files.style), 'utf8', (err, data) => {
         if (err && err !== 'ENOENT') { return reject(err) } else if (err) { return reject(new Error(`incorrect entry file in module ${install.name}@${install.version}`)) }
         let i = data.indexOf(`@mixin ${install.jsonFile.mainClass}(`)
         i = i + `@mixin ${install.jsonFile.mainClass}(`.length
@@ -353,9 +353,9 @@ let defineParametersOrderPromise = (install) => {
 /* updates main style file with instance import */
 let updateStyleFilePromise = (item) => {
   return new Promise((resolve, reject) => {
-    Fs.readFile(`${item.pathFinal}/${item.jsonFile.files.style}`, 'utf8', (err, data) => {
+    Fs.readFile(Path.join(item.pathFinal, item.jsonFile.files.style), 'utf8', (err, data) => {
       if (err && err.code !== 'ENOENT') { return reject(err) }
-      let path = Path.relative(Path.dirname(`${item.pathFinal}/${item.jsonFile.files.style}`), `${item.pathFinal}/${CONST.INSTANCE_FOLDER}/${item.jsonFile.style === 'scss' ? CONST.INSTANCE_FOLDER + '.scss' : '.' + CONST.INSTANCE_FOLDER + '.css'}`)
+      let path = Path.relative(Path.dirname(Path.join(item.pathFinal, item.jsonFile.files.style)), Path.join(item.pathFinal, CONST.INSTANCE_FOLDER, item.jsonFile.style === 'scss' ? CONST.INSTANCE_FOLDER + '.scss' : '.' + CONST.INSTANCE_FOLDER + '.css'))
       if (data.indexOf(`@import "${path}";\n`) === -1) {
         let startIndex = -1
         let stopIndex = 0
@@ -364,7 +364,7 @@ let updateStyleFilePromise = (item) => {
         }
         stopIndex = !stopIndex ? stopIndex : stopIndex + 1
         data = `${data.substring(0, stopIndex)}@import "${path}";\n${data.substring(stopIndex)}`
-        Fs.writeFile(`${item.pathFinal}/${item.jsonFile.files.style}`, data, err => {
+        Fs.writeFile(Path.join(item.pathFinal, item.jsonFile.files.style), data, err => {
           if (err) { return reject(err) }
           return resolve(item)
         })
@@ -376,7 +376,7 @@ let updateStyleFilePromise = (item) => {
 /* updates main instance file */
 let processInstancesPromise = (install) => {
   return new Promise((resolve, reject) => {
-    Fs.readFile(`${install.pathFinal}/${CONST.INSTANCE_FOLDER}/${CONST.INSTANCE_FOLDER}.scss`, 'utf8', (err, data) => {
+    Fs.readFile(Path.join(install.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.scss`), 'utf8', (err, data) => {
       if (err && err.code !== 'ENOENT') { return reject(err) } else if (err) {
         // create the file from scratch
         let importData = ''
@@ -400,9 +400,9 @@ let processInstancesPromise = (install) => {
       } else {
         // add in folder the correct instances
       }
-      Fs.writeFile(`${install.pathFinal}/${CONST.INSTANCE_FOLDER}/${CONST.INSTANCE_FOLDER}.scss`, data, err => {
+      Fs.writeFile(Path.join(install.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.scss`), data, err => {
         if (err) { return reject(err) }
-        if (install.debug) { console.log('>> (css) updating', `${install.pathFinal}/${CONST.INSTANCE_FOLDER}/${CONST.INSTANCE_FOLDER}.scss`) }
+        if (install.debug) { console.log('>> (css) updating', Path.join(install.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.scss`)) }
         updateStyleFilePromise(install)
         .then(resolve)
         .catch(reject)
@@ -431,7 +431,7 @@ let convertScssToCss = (input, output) => {
 let generateInstancePromise = (generate) => {
   if (generate.debug) { Debug(generate) }
   return new Promise((resolve, reject) => {
-    Fs.readFile(`${generate.pathFinal}/spm_modules/${generate.moduleName}/${generate.jsonFile.files.style}`, 'utf8', (err, data) => {
+    Fs.readFile(Path.join(generate.pathFinal, 'spm_modules', generate.moduleName, generate.jsonFile.files.style), 'utf8', (err, data) => {
       try {
         if (err) { return reject(err) }
         let parameters = ''
@@ -448,15 +448,15 @@ let generateInstancePromise = (generate) => {
           }
         }
         if (parameters.endsWith(',')) { parameters = parameters.slice(0, -1) }
-        Fs.readFile(`${generate.pathFinal}/${CONST.INSTANCE_FOLDER}/${CONST.INSTANCE_FOLDER}.scss`, 'utf8', (err, data) => {
+        Fs.readFile(Path.join(generate.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.scss`), 'utf8', (err, data) => {
           if (err && err.code !== 'ENOENT') { return reject(err) } else if (err) {
             data = `@import "../variables-spm.scss";\n@import "../${generate.jsonFile.files.style}";\n\n`
           }
           data += `@include ${generate.moduleName}(${parameters});\n`
-          Fs.writeFile(`${generate.pathFinal}/${CONST.INSTANCE_FOLDER}/${CONST.INSTANCE_FOLDER}.scss`, data, err => {
+          Fs.writeFile(Path.join(generate.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.scss`), data, err => {
             if (err) { return reject(err) }
             if (generate.style === 'css') {
-              convertScssToCss(`${generate.pathFinal}/${CONST.INSTANCE_FOLDER}/${CONST.INSTANCE_FOLDER}.scss`, `${generate.pathFinal}/${CONST.INSTANCE_FOLDER}/.${CONST.INSTANCE_FOLDER}.css`)
+              convertScssToCss(Path.join(generate.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.scss`), Path.join(generate.pathFinal, CONST.INSTANCE_FOLDER, `€{CONST.INSTANCE_FOLDER}.css`))
               .then(res => {
                 generate.successes.push(`css instance ${generate.nickname} of module ${generate.moduleName} has been generated`)
                 updateStyleFilePromise(generate)

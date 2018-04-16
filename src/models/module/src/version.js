@@ -1,4 +1,5 @@
 let Fs = require('fs')
+let Path = require('path')
 let Chalk = require('chalk')
 let Prompt = require('inquirer').prompt
 let CONST = require('../../../lib/const')
@@ -17,7 +18,7 @@ let findJsonFilePromise = (version) => {
       .then(path => {
         version.pathModule = path
         version.pathFinal = version.pathModule || version.pathProject || version.pathInitial
-        version.pathModules = `${version.pathFinal}/spm_modules`
+        version.pathModules = Path.join(version.pathFinal, 'spm_modules')
         if (!version.pathProject && !version.pathModule) {
           version.warnings.push('no module or project detected - version in current path')
           Common.findModulesPromise(version.pathInitial)
@@ -27,7 +28,7 @@ let findJsonFilePromise = (version) => {
             return resolve(version)
           })
         } else {
-          version.pathPackage = `${version.pathFinal}/${version.pathModule ? CONST.MODULE_JSON_NAME : CONST.PROJECT_JSON_NAME}`
+          version.pathPackage = Path.join(version.pathFinal, version.pathModule ? CONST.MODULE_JSON_NAME : CONST.PROJECT_JSON_NAME)
           return resolve(version)
         }
       })
@@ -43,7 +44,7 @@ let parseJsonFilePromise = (version) => {
   return new Promise((resolve, reject) => {
     Fs.readFile(version.pathPackage, 'utf8', (err, data) => {
       if (err) { return reject(err) }
-      version.jsonFile = JSON.parse(data)
+      try { version.jsonFile = JSON.parse(data) } catch (e) { return reject(e) }
       if (!version.jsonFile.version) {
         Prompt([{
           message: `no version found in your package-spm.json - manually enter it :`,
