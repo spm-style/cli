@@ -7,9 +7,8 @@ module.exports = (Program) => {
     .command('login')
     .alias('l')
     .description('to authentify yourself')
-    .option('-f, --force', 'to login even if there is already another session up')
     .action(options => {
-      Authentify.getSpmAPIToken('login', options.force)
+      Authentify.getSpmAPIToken('login', true)
       .then(resolve)
       .catch(reject)
     })

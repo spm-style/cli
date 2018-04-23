@@ -49,7 +49,7 @@ let createModulePromise = (create) => {
         default: create.mainClass,
         /* spm names are never shorter than 2 characters */
         validate: (value) => {
-          return (value.length && value.length > 1) ? true : Chalk.hex(CONST.WARNING_COLOR)('use at least 2 characters')
+          return (value.length && value.length > 1 && !value.includes('-') && !value.includes('_')) ? true : Chalk.hex(CONST.WARNING_COLOR)('use at least 2 characters, with no "_" and "-"')
         }
       },
       description: {
@@ -269,10 +269,10 @@ module.exports = (Program) => {
     .option('--force', 'to erase the existing module-spm.json file')
     .option('--debug', 'to display debug logs')
     .action((name, options) => {
-      if (!/^.{2,}$/.test(name) || name === 'spm_modules') {
-        Program.on('--help', () => { console.log(Chalk.hex(CONST.WARNING_COLOR)('name should be longer than 2 characters (value spm_modules forbidden)')) })
+      if (!/^.{2,}$/.test(name) || name.includes('_') || name.includes('-')) {
+        Program.on('--help', () => { console.log(Chalk.hex(CONST.WARNING_COLOR)('name should be longer than 2 characters, with no "-" or "_"')) })
         Program.help()
-        return reject(new Error('name should be longer than 2 characters'))
+        return reject(new Error('name should be longer than 2 characters, with no "-" or "_"'))
       } else if (options.version && typeof options.version !== 'function' && !/^[0-9]+[.][0-9]+[.][0-9]+$/.test(options.version)) {
         Program.on('--help', () => { console.log(Chalk.hex(CONST.WARNING_COLOR)('please enter a valid version number (x.x.x)')) })
         Program.help()
