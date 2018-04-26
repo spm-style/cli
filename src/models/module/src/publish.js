@@ -392,7 +392,11 @@ let sendPublicationToRegistryPromise = (publish) => {
       try {
         let res = JSON.parse(body)
         if (Math.floor(res.statusCode / 100) >= 4) {
-          return reject(spinner.errorStop(res.message))
+          if (res.message.includes('incorrect user information')) {
+            return reject(spinner.errorStop(`your session has timed out, please login again with "spm user login"`))
+          } else {
+            return reject(spinner.errorStop(res.message))
+          }
         } else {
           spinner.successStop(`module publication correctly processed by spm registry`)
           if (res.name !== publish.name) {
