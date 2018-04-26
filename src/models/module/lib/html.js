@@ -164,15 +164,16 @@ let htmlSelectersPromise = (domArray, mainClass, all) => {
 }
 
 /* checks first level and complete classes for dependencies */
-let processDomClasses = (dom, obj = { firstLevelClasses: [], allClasses: [] }, topLevel = true) => {
+let processDomClasses = (dom, mainClass) => {
+  if (!subDom.length) { return null }
   for (let subDom of dom) {
     for (let domClass in subDom.classes) {
-      if (topLevel && !obj.firstLevelClasses.includes(domClass)) { obj.firstLevelClasses.push(domClass) }
-      if (!obj.allClasses.includes(domClass)) { obj.allClasses.push(domClass) }
+      if (domClass === mainClass) { return subDom }
+      // if (topLevel && !obj.firstLevelClasses.includes(domClass)) { obj.firstLevelClasses.push(domClass) }
+      // if (!obj.allClasses.includes(domClass)) { obj.allClasses.push(domClass) }
     }
-    processDomClasses(subDom.content, obj, false)
   }
-  return obj
+  return processDomClasses(subDom.content, mainClass)
 }
 
 /* checks if html is correct and returns a full dom-tree with classes */
@@ -192,11 +193,12 @@ let htmlProcesserPromise = (item, filePath, dom, mainClass, validation, all = fa
         return reject(data.slice(0, -19))
       } else {
         let completeDom = domToInstructions(filePath, dom)
-        let classesDetail = processDomClasses(completeDom)
-        if (!classesDetail.firstLevelClasses.length) { return reject(new Error(`dom must be wrapped in an element using module's main class ${mainClass}`)) }
-        if (!classesDetail.firstLevelClasses.includes(mainClass)) { return reject(new Error(`spm module must be wrapped in main class ${mainClass}`)) }
+        let selectedDom = processDomClasses(completeDom, mainClass)
+        if (!selectedDom) { return reject(new Error(`dom must include an element using module's main class ${mainClass}`)) }
+        // if (!classesDetail.firstLevelClasses.length) { return reject(new Error(`dom must be wrapped in an element using module's main class ${mainClass}`)) }
+        // if (!classesDetail.firstLevelClasses.includes(mainClass)) { return reject(new Error(`spm module must be wrapped in main class ${mainClass}`)) }
         let undeclaredClasses = []
-        for (let firstLevelClass of classesDetail.firstLevelClasses) {
+        for (let firstLevelClass of selectedDom.classes) {
           if (!item.json.classes.concat(item.json.mainClass).includes(firstLevelClass) && !undeclaredClasses.includes(firstLevelClass)) { undeclaredClasses.push(firstLevelClass) }
         }
         if (undeclaredClasses.length) { return reject(new Error(`undeclared classes ${undeclaredClasses.join(', ')} in html file\n=> use spm module edit --classes='${undeclaredClasses.join(',')}'`)) }
