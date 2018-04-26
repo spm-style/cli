@@ -197,7 +197,18 @@ let createModuleFilePromise = (create) => {
         name: create.htmlName,
         toCreate: create.options.htmlFile || create.projectPath,
         toForce: false,
-        content: ''
+        content: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>${create.name}</title>
+  <link rel="stylesheet" href="${create.ssName.endsWith('.scss') ? '.' : ''}${create.ssName.substring(0, create.ssName.lastIndexOf('.'))}.css">
+</head>
+<body>
+  <!-- SPM says hi :-D -->
+  <script type="text/javascript" src="${create.jsName}"></script>
+</body>
+</html>\n`
       },
       {
         name: create.jsName,
@@ -220,7 +231,9 @@ let createModuleFilePromise = (create) => {
         name: `variables-spm.${create.style}`,
         toCreate: true,
         toForce: false,
-        content: ''
+        content: `/${create.style === 'scss' ? '/ ' : '*\n'}declare all your variables here
+${create.style === 'scss' ? '// instances variables must start with $_\n' : ''}${create.style === 'scss' ? '// ' : ''}for more information, check https://www.spm-style.com/documentation/publish
+${create.style === 'css' ? '*/\n' : ''}`
       }
     ]
     let promises = []
