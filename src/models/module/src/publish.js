@@ -143,14 +143,6 @@ let checkModuleJsonPromise = (publish) => {
         regex: false,
         message: `missing category - use 'spm module edit --category <category>'`
       },
-      readme: {
-        regex: false,
-        message: `missing readme - use 'spm module edit --readme <readmeFile>'`
-      },
-      repository: {
-        regex: false,
-        message: `missing repository - use 'spm module edit --repository <repository>'`
-      },
       license: {
         regex: false,
         message: `missing license - use 'spm module edit --license <license>'`
@@ -300,8 +292,6 @@ let checkPublicationContent = (publish) => {
       ssEntry: publish.json.files.style,
       jsEntry: publish.json.files.script,
       dependencies: publish.json.dependencies,
-      repository: publish.json.repository,
-      readme: publish.json.readme,
       keywords: publish.json.keywords,
       license: publish.json.license,
       dom: {type: 'custom', value: publish.dom},
@@ -309,6 +299,8 @@ let checkPublicationContent = (publish) => {
       category: publish.json.category,
       jsImports: publish.jsImports
     }
+    if (publish.json.readme) { publish.apiPackage.readme = publish.json.readme }
+    if (publish.json.repository) { publish.apiPackage.repository = publish.json.repository }
     let incorrectKeys = []
     for (let key in publish.apiPackage) {
       if (!publish.apiPackage[key] && !['responsiveness'].includes(key)) {

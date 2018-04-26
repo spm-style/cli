@@ -70,7 +70,7 @@ class Create {
 
   /* keys used in the create prompter */
   getKeys () {
-    return ['version', 'style', 'mainClass', 'description', 'jsStandard', 'repository', 'license', 'keywords', 'classes', 'htmlName', 'ssName', 'jsName']
+    return ['version', 'style', 'mainClass', 'description', 'jsStandard', 'category', 'repository', 'readme', 'license', 'keywords', 'classes', 'htmlName', 'ssName', 'jsName']
   }
 }
 
