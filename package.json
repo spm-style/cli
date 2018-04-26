@@ -1,6 +1,6 @@
 {
   "name": "spm-cli",
-  "version": "1.1.1",
+  "version": "0.2.5",
   "description": "the awesome style project manager",
   "main": "index.js",
   "directories": {

@@ -87,6 +87,7 @@ let domToInstructions = (filePath, dom, index = 0) => {
       }].concat(domToInstructions(filePath, dom.substring(next), index))
     }
   }
+  if (dom.startsWith('<!--')) { return domToInstructions(filePath, dom.substring(dom.indexOf('-->') + 3), index) }
   let count = 0
   let closingChevron = dom.indexOf('>')
   let tag = dom.substring(1, Math.min(closingChevron, dom.indexOf(' ')))
@@ -165,15 +166,12 @@ let htmlSelectersPromise = (domArray, mainClass, all) => {
 
 /* checks first level and complete classes for dependencies */
 let processDomClasses = (dom, mainClass) => {
-  if (!subDom.length) { return null }
   for (let subDom of dom) {
-    for (let domClass in subDom.classes) {
-      if (domClass === mainClass) { return subDom }
-      // if (topLevel && !obj.firstLevelClasses.includes(domClass)) { obj.firstLevelClasses.push(domClass) }
-      // if (!obj.allClasses.includes(domClass)) { obj.allClasses.push(domClass) }
-    }
+    for (let domClass in subDom.classes) { if (domClass === mainClass) { return subDom } }
+    let subDomresult = processDomClasses(subDom.content, mainClass)
+    if (subDomresult) { return subDomresult }
   }
-  return processDomClasses(subDom.content, mainClass)
+  return null
 }
 
 /* checks if html is correct and returns a full dom-tree with classes */
@@ -194,25 +192,20 @@ let htmlProcesserPromise = (item, filePath, dom, mainClass, validation, all = fa
       } else {
         let completeDom = domToInstructions(filePath, dom)
         let selectedDom = processDomClasses(completeDom, mainClass)
-        if (!selectedDom) { return reject(new Error(`dom must include an element using module's main class ${mainClass}`)) }
-        // if (!classesDetail.firstLevelClasses.length) { return reject(new Error(`dom must be wrapped in an element using module's main class ${mainClass}`)) }
-        // if (!classesDetail.firstLevelClasses.includes(mainClass)) { return reject(new Error(`spm module must be wrapped in main class ${mainClass}`)) }
-        let undeclaredClasses = []
-        for (let firstLevelClass of selectedDom.classes) {
-          if (!item.json.classes.concat(item.json.mainClass).includes(firstLevelClass) && !undeclaredClasses.includes(firstLevelClass)) { undeclaredClasses.push(firstLevelClass) }
-        }
-        if (undeclaredClasses.length) { return reject(new Error(`undeclared classes ${undeclaredClasses.join(', ')} in html file\n=> use spm module edit --classes='${undeclaredClasses.join(',')}'`)) }
-        for (let singleClass of classesDetail.allClasses) {
-          if (singleClass.includes('_') && !Object.keys(item.json.dependencies).includes(singleClass)) {
-            return reject(new Error(`found class ${singleClass} in module - cannot use underscore in class name - remove or declare as spm dependency`))
+        if (!selectedDom && validation) { return reject(new Error(`dom must include an element using module's main class ${mainClass}`)) }
+        if (selectedDom) {
+          let undeclaredClasses = []
+          for (let firstLevelClass in selectedDom.classes) {
+            if (!item.json.classes.concat(item.json.mainClass).includes(firstLevelClass) && !undeclaredClasses.includes(firstLevelClass)) { undeclaredClasses.push(firstLevelClass) }
           }
-        }
-        htmlSelectersPromise(completeDom, mainClass, all)
-        .then(result => {
-          if (!result.length) { return reject(new Error('main class not found')) }
-          return resolve(result)
-        })
-        .catch(reject)
+          if (undeclaredClasses.length) { return reject(new Error(`undeclared classes ${undeclaredClasses.join(', ')} in html file\n=> use spm module edit --classes='${undeclaredClasses.join(',')}'`)) }
+          htmlSelectersPromise([selectedDom], mainClass, all)
+          .then(result => {
+            if (!result.length) { return reject(new Error('main class not found')) }
+            return resolve(result)
+          })
+          .catch(reject)
+        } else { return resolve([]) }
       }
     })
   })
