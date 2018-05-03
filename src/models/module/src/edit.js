@@ -75,6 +75,7 @@ let recursivePropertiesAdderPromise = (obj, table = [], path = '') => {
 /* to add only new elements in a list */
 let updateList = (newList, oldList) => {
   if (!newList) { return oldList }
+  if (!oldList) { oldList = [] }
   for (let item of newList) {
     if (!oldList.includes(item)) { oldList.push(item) }
   }
@@ -100,6 +101,7 @@ let modifyVariableJsonPromise = (edit) => {
       jsName: 'scriptFile',
       ssName: 'styleFile',
       classes: 'classes',
+      sandboxDefaultClasses: 'sandboxDefaultClasses',
       readme: 'readme',
       repository: 'repository',
       license: 'license'
@@ -130,6 +132,7 @@ let modifyVariableJsonPromise = (edit) => {
           style: optionsToChange.ssName || edit.json.files.style
         },
         classes: updateList(optionsToChange.classes, edit.json.classes),
+        sandbox: { defaultClasses: updateList(optionsToChange.sandboxDefaultClasses, edit.json.sandboxDefaultClasses) },
         readme: optionsToChange.readme || edit.json.readme,
         repository: optionsToChange.repository || edit.json.repository,
         license: optionsToChange.license || edit.json.license,
@@ -195,6 +198,7 @@ module.exports = (Program) => {
     .option('--js-name <jsFile>', `to configure the module's javascript file`)
     .option('--ss-name <ssFile>', `to configure the module's stylesheet file`)
     .option('--classes <classes>', `to configure the module's classes`, Common.optionList)
+    .option('--sandbox-default-classes <classes>', `to configure the active classes by default for sandbox`, Common.optionList)
     .option('--readme <readmeFile>', `to configure the module's README.md file`)
     .option('--repository <repository>', `to configure the module's repository`)
     .option('--license <license>', `to configure the module's license`)

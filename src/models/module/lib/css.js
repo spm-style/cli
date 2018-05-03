@@ -353,6 +353,7 @@ let defineParametersOrderPromise = (install) => {
 /* updates main style file with instance import */
 let updateStyleFilePromise = (item) => {
   return new Promise((resolve, reject) => {
+    console.log(item.pathFinal, item.jsonFile.files.style)
     Fs.readFile(Path.join(item.pathFinal, item.jsonFile.files.style), 'utf8', (err, data) => {
       if (err && err.code !== 'ENOENT') { return reject(err) }
       let path = Path.relative(Path.dirname(Path.join(item.pathFinal, item.jsonFile.files.style)), Path.join(item.pathFinal, CONST.INSTANCE_FOLDER, item.jsonFile.style === 'scss' ? CONST.INSTANCE_FOLDER + '.scss' : '.' + CONST.INSTANCE_FOLDER + '.css'))
@@ -431,7 +432,7 @@ let convertScssToCss = (input, output) => {
 let generateInstancePromise = (generate) => {
   if (generate.debug) { Debug(generate) }
   return new Promise((resolve, reject) => {
-    Fs.readFile(Path.join(generate.pathFinal, 'spm_modules', generate.moduleName, generate.jsonFile.files.style), 'utf8', (err, data) => {
+    Fs.readFile(Path.join(generate.pathFinal, 'spm_modules', generate.moduleName, generate.jsonDependency.files.style), 'utf8', (err, data) => {
       try {
         if (err) { return reject(err) }
         let parameters = ''
@@ -450,7 +451,7 @@ let generateInstancePromise = (generate) => {
         if (parameters.endsWith(',')) { parameters = parameters.slice(0, -1) }
         Fs.readFile(Path.join(generate.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.scss`), 'utf8', (err, data) => {
           if (err && err.code !== 'ENOENT') { return reject(err) } else if (err) {
-            data = `@import "../variables-spm.scss";\n@import "../${generate.jsonFile.files.style}";\n\n`
+            data = `@import "../variables-spm.scss";\n@import "../spm_modules/${generate.moduleName}/${generate.jsonDependency.files.style}";\n\n`
           }
           data += `@include ${generate.moduleName}(${parameters});\n`
           Fs.writeFile(Path.join(generate.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.scss`), data, err => {

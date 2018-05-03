@@ -288,6 +288,7 @@ let checkPublicationContent = (publish) => {
       style: publish.json.style,
       mainClass: publish.json.mainClass,
       classes: publish.json.classes,
+      sandbox: {defaultClasses: publish.json.sandbox && publish.json.sandbox.defaultClasses ? publish.json.sandbox.defaultClasses : []},
       description: publish.json.description,
       ssEntry: publish.json.files.style,
       jsEntry: publish.json.files.script,

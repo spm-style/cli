@@ -22,6 +22,7 @@ class Module {
     this.files.script = create.jsName
     this.files.style = create.ssName
     this.classes = create.classes
+    this.sandbox = { defaultClasses: [] }
     this.readme = create.readme
     this.repository = create.repository
     this.license = create.license

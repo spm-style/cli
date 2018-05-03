@@ -22,7 +22,7 @@ let parseProcessPromise = (publish) => {
             moduleClassesFound = true
           }
         }
-      } else if (item.type === 'ExpressionStatement' && item.expression.type === 'AssignmentExpression' && item.expression.left.name.startsWith(CONST.INSTANCE_PREFIX)) {
+      } else if (item.type === 'ExpressionStatement' && item.expression.type === 'AssignmentExpression' && (item.expression.left.name && item.expression.left.name.startsWith(CONST.INSTANCE_PREFIX))) {
         return reject(new Error(`ERROR ${item.expression.left.name} type instance const assigned out of declaration`))
       }
     }
@@ -128,6 +128,9 @@ let processInstancesPromise = (install) => {
           if (dependency.added) {
             let parameters = []
             for (let instanceVar of dependency.jsonFile.js.instancesVar) { parameters.push(instanceVar.value) }
+            for (let moduleClass of dependency.jsonFile.classes) {
+              if (moduleClass.js) { parameters.push(`'${moduleClass.name}'`) }
+            }
             data += `let ${dependency.lowerName} = new ${dependency.upperName}(${parameters.join(',')})\n`
           }
         }
@@ -234,7 +237,7 @@ let generateInstancePromise = (generate) => {
       if (err && err.code !== 'EEXIST') { return reject(err) }
       Fs.readFile(Path.join(generate.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.js`), 'utf8', (err, data) => {
         if (err && err.code !== 'ENOENT') { return reject(err) } else if (err) { data = '' }
-        let path = Path.relative(Path.dirname(Path.join(generate.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.js`)), Path.join(generate.pathFinal, 'spm_modules', generate.moduleName, generate.jsonFile.files.script))
+        let path = Path.relative(Path.dirname(Path.join(generate.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.js`)), Path.join(generate.pathFinal, 'spm_modules', generate.moduleName, generate.jsonDependency.files.script))
         if (generate.jsStandard) {
           if (data.indexOf(`import { ${generate.upperName} } from '${path}'\n`) === -1) {
             let startIndex = -1
@@ -246,8 +249,11 @@ let generateInstancePromise = (generate) => {
           }
         }
         let parameters = ''
-        for (let jsVar of generate.jsonFile.js.instancesVar) {
+        for (let jsVar of generate.jsonDependency.js.instancesVar) {
           parameters += `${generate.variablesMap[jsVar.name].to || generate.variablesMap[jsVar.name].from},`
+        }
+        for (let moduleClass of generate.jsonDependency.classes) {
+          if (moduleClass.js) { parameters += `'${generate.nicknames[moduleClass.name]}',` }
         }
         if (parameters.endsWith(',')) { parameters = parameters.slice(0, -1) }
         data += `${generate.assign && generate.jsStandard === 'modular' ? 'export ' : ''}${generate.assign ? 'let ' + generate.nickname + ' = ' : ''}new ${generate.upperName}(${parameters})\n`

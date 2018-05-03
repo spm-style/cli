@@ -52,6 +52,7 @@ let parsePackagePromise = (generate) => {
       } else {
         if (res.style === 'scss') { generate.style = 'scss' }
         generate.jsStandard = res.jsStandard
+        generate.jsonFile = res
       }
       return resolve(generate)
     })
@@ -104,7 +105,7 @@ let selectModulePromise = (generate) => {
             if (generate.assign && generate.nickname === res) { return reject(new Error(`variable ${generate.nickname} already assigned as module Class declaration`)) }
             Common.getJsonFilePromise(Path.join(generate.pathModules, res, CONST.MODULE_JSON_NAME))
             .then(json => {
-              generate.jsonFile = json
+              generate.jsonDependency = json
               return resolve(generate)
             })
             .catch(reject)
@@ -128,7 +129,7 @@ let customizeVariablesPromise = (generate) => {
   return new Promise((resolve, reject) => {
     generate.variablesMap = {}
     generate.nicknames = {}
-    for (let item of generate.jsonFile.classes) {
+    for (let item of generate.jsonDependency.classes) {
       // item.checked before here in if condition
       if (item.variables) {
         for (let variable of item.variables) {
@@ -137,7 +138,7 @@ let customizeVariablesPromise = (generate) => {
         generate.nicknames[item.name] = true
       }
     }
-    for (let item of generate.jsonFile.js.instancesVar) {
+    for (let item of generate.jsonDependency.js.instancesVar) {
       generate.variablesMap[item.name] = { from: item.value, type: 'js' } // item.type not used
     }
     let questions = []
@@ -160,12 +161,12 @@ let customizeVariablesPromise = (generate) => {
           nicknamesQuestions.push({
             name: nickname,
             message: `instance name to replace ${nickname}`,
-            default: replacePrefix(nickname, generate.jsonFile.name, generate.nickname)
+            default: replacePrefix(nickname, generate.jsonDependency.name, generate.nickname)
           })
         }
       } else {
         for (let className in generate.nicknames) {
-          generate.nicknames[className] = replacePrefix(className, generate.jsonFile.name, generate.nickname)
+          generate.nicknames[className] = replacePrefix(className, generate.jsonDependency.name, generate.nickname)
         }
         return resolve(generate)
       }
@@ -173,7 +174,7 @@ let customizeVariablesPromise = (generate) => {
       Prompt(nicknamesQuestions)
       .then(answer => {
         for (let className in generate.nicknames) {
-          generate.nicknames[className] = answer[className] || replacePrefix(className, generate.jsonFile.name, generate.nickname)
+          generate.nicknames[className] = answer[className] || replacePrefix(className, generate.jsonDependency.name, generate.nickname)
         }
         return resolve(generate)
       })

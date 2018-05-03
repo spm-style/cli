@@ -288,9 +288,10 @@ let installDependencyPromise = (install) => {
           .catch(reject)
         }
       } else {
+        install.target = install.target || install.path || install.pathFinal
         install.added = true
         install.stats.addedNumber++
-        install.downloadList.push({ name: install.name, version: install.version, path: install.path || install.pathFinal })
+        install.downloadList.push({ name: install.name, version: install.version, path: install.target })
         if (install.debug) { console.log('>> downloading:', `${install.name}@${install.version}`, 'in', install.target) }
         Common.downloadModuleSpmPromise(install.name, install.version, install.target)
         .then(() => Common.writeContent(JSON.stringify(install.jsonFile, null, '  ') + '\n', Path.join(install.target, CONST.MODULE_JSON_NAME), '', install))
