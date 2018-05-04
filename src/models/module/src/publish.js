@@ -472,7 +472,8 @@ module.exports = (Program) => {
                 err = err.replace(Path.join(publish.path, '.tmp_spm', '.sass_spm', 'result.css'), 'resulting of spm checks').replace(Path.join(publish.path, '.tmp_spm'), publish.path)
               }
             }
-            return reject(err) })
+            return reject(err)
+          })
           .catch(reject)
         })
       }

@@ -204,8 +204,8 @@ module.exports = (Program) => {
     .option('--license <license>', `to configure the module's license`)
     .option('--debug', 'to display debug logs')
     .action(options => {
-      if (options.name && typeof options.name !== 'function' && (!/^.{2,}$/.test(options.name) || options.name === 'spm_modules')) {
-        Program.on('--help', () => { console.log(Chalk.hex(CONST.WARNING_COLOR)('name should be longer than 2 characters (value spm_modules forbidden)')) })
+      if (options.name && typeof options.name !== 'function' && (!/^.{2,}$/.test(options.name) || !/^[a-zA-Z0-9_]*$/.test(options.name))) {
+        Program.on('--help', () => { console.log(Chalk.hex(CONST.WARNING_COLOR)('name should be longer than 2 characters, only alphanumerical')) })
         Program.help()
         return reject(new Error('name should be longer than 2 characters'))
       } else if (options.version && typeof options.version !== 'function' && !/^[0-9]+[.][0-9]+[.][0-9]+$/.test(options.version)) {
