@@ -263,7 +263,8 @@ let validatorPromise = (item, filePath, mainClass, validation = true, all = fals
         htmlProcesserPromise(item, filePath, data, mainClass, validation, all)
         .then(resolve)
         .catch(err => {
-          return reject(new Error(`in file ${filePath}:\n${err}`))
+          if (err.message) { err.message += `\nin file ${filePath}` } else if (err) { err += `\nin file ${filePath}` }
+          return reject(err)
         })
       }
     })
