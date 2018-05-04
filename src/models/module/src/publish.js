@@ -120,7 +120,7 @@ let checkModuleJsonPromise = (publish) => {
   return new Promise((resolve, reject) => {
     const keyMaps = {
       name: {
-        regex: /^(?!^spm_modules$).{2,}$/,
+        regex: /^[a-zA-Z0-9_]{2,}$/,
         message: `name should be longer than 2 characters (value spm_modules forbidden) - use 'spm module edit --name <name>'`
       },
       version: {
@@ -132,7 +132,7 @@ let checkModuleJsonPromise = (publish) => {
         message: `your style should be css or scss - use 'spm module edit --style <style>'`
       },
       mainClass: {
-        regex: /^.{2,}$/,
+        regex: /^[a-zA-Z0-9_]{2,}$/,
         message: `main class should be longer than 2 characters - use 'spm module edit --main-class <mainClass>'`
       },
       description: {
