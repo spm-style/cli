@@ -464,7 +464,15 @@ module.exports = (Program) => {
         .then(resolve)
         .catch(err => {
           cleanWorkspacePromise(publish)
-          .then(() => { return reject(err) })
+          .then(() => {
+            if (publish.path) {
+              if (err.message) {
+                err.message = err.message.replace(Path.join(publish.path, '.tmp_spm', '.sass_spm', 'result.css'), 'resulting of spm checks').replace(Path.join(publish.path, '.tmp_spm'), publish.path)
+              } else {
+                err = err.replace(Path.join(publish.path, '.tmp_spm', '.sass_spm', 'result.css'), 'resulting of spm checks').replace(Path.join(publish.path, '.tmp_spm'), publish.path)
+              }
+            }
+            return reject(err) })
           .catch(reject)
         })
       }
