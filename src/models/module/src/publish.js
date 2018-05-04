@@ -418,9 +418,9 @@ let sendPublicationToRegistryPromise = (publish) => {
 let cleanWorkspacePromise = (publish) => {
   if (publish.debug) { Debug() }
   return new Promise((resolve, reject) => {
-    Common.deleteFolderRecursivePromise(Path.join(publish.path, '.tmp_spm'), true)
+    Common.deleteFolderRecursivePromise(Path.join(publish.path || publish.initialPath, '.tmp_spm'), true)
     .then(() => {
-      Common.deleteFolderRecursivePromise(Path.join(publish.path, '.tmp_spm_publish'), true)
+      Common.deleteFolderRecursivePromise(Path.join(publish.path || publish.initialPath, '.tmp_spm_publish'), true)
       .then(() => {
         return resolve(publish)
       })
