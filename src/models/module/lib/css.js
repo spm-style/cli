@@ -378,28 +378,34 @@ let updateStyleFilePromise = (item) => {
 let processInstancesPromise = (install) => {
   return new Promise((resolve, reject) => {
     Fs.readFile(Path.join(install.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.scss`), 'utf8', (err, data) => {
-      if (err && err.code !== 'ENOENT') { return reject(err) } else if (err) {
-        // create the file from scratch
-        let importData = ''
-        let includeData = ''
-        for (let module of install.children) { // finalInstances
-          module.variableMap = {}
-          module.classParameters = []
-          for (let moduleClass of module.jsonFile.classes) {
-            module.classParameters.push(moduleClass.name)
-            for (let variableItem of moduleClass.variables) { module.variableMap[variableItem.name] = variableItem.value }
-          }
-          let ssParameters = ''
-          let classParameters = ''
-          for (let param of module.ssParameters) { ssParameters += `${module.variableMap[param]},` }
-          for (let moduleClass of module.classParameters) { classParameters += `'${moduleClass}',` }
-          classParameters = classParameters.slice(0, -1)
-          importData += `@import '../spm_modules/${module.name}/${module.files.style}';\n`
-          includeData += `@include ${module.name}(${ssParameters}${classParameters});\n`
+      let importData = ''
+      let includeData = ''
+      for (let module of install.children) {
+        module.variableMap = {}
+        module.classParameters = []
+        for (let moduleClass of module.jsonFile.classes) {
+          module.classParameters.push(moduleClass.name)
+          for (let variableItem of moduleClass.variables) { module.variableMap[variableItem.name] = variableItem.value }
         }
+        let ssParameters = ''
+        let classParameters = ''
+        for (let param of module.ssParameters) { ssParameters += `${module.variableMap[param]},` }
+        for (let moduleClass of module.classParameters) { classParameters += `'${moduleClass}',` }
+        classParameters = classParameters.slice(0, -1)
+        if (!data || data.indexOf(`@import '../spm_modules/${module.name}/${module.files.style}';\n`) === -1) {
+          importData += `@import '../spm_modules/${module.name}/${module.files.style}';\n`
+        }
+        includeData += `@include ${module.name}(${ssParameters}${classParameters});\n`
+      }
+
+      if (err && err.code !== 'ENOENT') { return reject(err) } else if (err) {
         data = `${importData}\n${includeData}`
       } else {
-        // add in folder the correct instances
+        let startIndex = 0
+        while (data.indexOf('@import ', startIndex) > -1) {
+          startIndex = data.indexOf(';', startIndex) + 1
+        }
+        data = `${data.substring(0, startIndex)}${importData}${data.substring(startIndex)}${includeData}`
       }
       Fs.writeFile(Path.join(install.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.scss`), data, err => {
         if (err) { return reject(err) }
