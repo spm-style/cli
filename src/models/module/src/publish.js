@@ -148,9 +148,12 @@ let checkModuleJsonPromise = (publish) => {
         message: `missing license - use 'spm module edit --license <license>'`
       }
     }
-    const arrays = ['keywords', 'contributors', 'classes', 'responsive']
+    const arrays = ['keywords', 'contributors', 'classes']
     for (let key in keyMaps) {
       if (publish.json[key] === undefined || publish.json[key] === null || (keyMaps[key].regex && !keyMaps[key].regex.test(publish.json[key]))) { return reject(new Error(keyMaps[key].message)) }
+    }
+    if (!publish.json.responsive || !publish.json.responsive.length || !Common.checkCorrectResponsiveness(publish.json.responsive)) {
+      return reject(new Error(`incorrect responsive devices - use "spm module edit --responsive <devices>"\nwith one or several devices among 'watch', 'mobile', 'phablet', 'tablet', 'laptop', 'screenXl'`))
     }
     for (let moduleArray of arrays) {
       if (!publish.json[moduleArray] || !(publish.json[moduleArray] instanceof Array)) {

@@ -34,13 +34,13 @@ let parseProcessPromise = (publish) => {
   })
 }
 
-/* all controls */
+/* all controls (query selectors, events, etc...) */
 let spmControlPromise = (publish) => {
   return new Promise((resolve, reject) => {
-
     return resolve(publish)
   })
 }
+
 /* drives the js checking logic */
 let fileCheckerPromise = (publish) => {
   if (publish.debug) { Debug() }
