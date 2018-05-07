@@ -53,11 +53,22 @@ let recursivePropertiesAdderPromise = (obj, table = [], path = '') => {
     let promises = []
     if (!Object.keys(obj).length) { return resolve(table) }
     for (let key in obj) {
-      if (typeof obj[key] === 'object') {
+      if (obj[key] && typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
         promises.push(recursivePropertiesAdderPromise(obj[key], table, path.length ? `${path}*${key}` : key))
       } else {
+        let question
         let valuePath = path.length ? `${path}*${key}` : key
-        let question = { name: valuePath, message: toCamelCase(valuePath), default: obj[key] instanceof Array ? obj[key].join(', ') : obj[key] }
+        if (valuePath === 'responsive') {
+          question = {
+            name: 'responsive',
+            message: 'responsive',
+            type: 'checkbox',
+            choices: ['watch', 'mobile', 'phablet', 'tablet', 'laptop', 'screenXl'],
+            default: obj[key] || []
+          }
+        } else {
+          question = { name: valuePath, message: toCamelCase(valuePath), default: obj[key] instanceof Array ? obj[key].join(', ') : obj[key] }
+        }
         if (obj[key] instanceof Array) { question.filter = Common.optionList }
         promises.push(question)
       }
@@ -133,9 +144,9 @@ let modifyVariableJsonPromise = (edit) => {
         },
         classes: updateList(optionsToChange.classes, edit.json.classes),
         sandbox: { defaultClasses: updateList(optionsToChange.sandboxDefaultClasses, edit.json.sandboxDefaultClasses) },
-        readme: optionsToChange.readme || edit.json.readme,
-        repository: optionsToChange.repository || edit.json.repository,
-        license: optionsToChange.license || edit.json.license,
+        readme: optionsToChange.readme || edit.json.readme || '',
+        repository: optionsToChange.repository || edit.json.repository || '',
+        license: optionsToChange.license || edit.json.license || '',
         contributors: edit.json.contributors
       }
       return resolve(edit)

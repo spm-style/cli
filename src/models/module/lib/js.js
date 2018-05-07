@@ -34,6 +34,13 @@ let parseProcessPromise = (publish) => {
   })
 }
 
+/* all controls */
+let spmControlPromise = (publish) => {
+  return new Promise((resolve, reject) => {
+
+    return resolve(publish)
+  })
+}
 /* drives the js checking logic */
 let fileCheckerPromise = (publish) => {
   if (publish.debug) { Debug() }
@@ -46,7 +53,7 @@ let fileCheckerPromise = (publish) => {
         .catch(reject)
       } else {
         if (publish.json.jsStandard === 'modular') {
-          let modularParsed = Acorn.parse(data, { sourceType: 'module' })
+          let modularParsed = Acorn.parse(data, { sourceType: 'module', locations: true })
           for (let index = modularParsed.body.length - 1; index >= 0; index--) {
             let item = modularParsed.body[index]
             if (item.type === 'ImportDeclaration') {
@@ -73,7 +80,8 @@ let fileCheckerPromise = (publish) => {
           }
         }
         publish.jsData = data
-        parseProcessPromise(publish)
+        spmControlPromise(publish)
+        .then(parseProcessPromise)
         .then(() => {
           if (publish.json.jsStandard === 'modular') {
             Fs.writeFile(Path.join(publish.path, '.tmp_spm', publish.json.files.script), data, err => {

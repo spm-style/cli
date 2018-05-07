@@ -14,7 +14,8 @@ module.exports = (Program) => {
         console.log(Chalk.hex(CONST.WARNING_COLOR)('you are already disconnected'))
         return resolve()
       } else {
-        for (let key in prefs) { delete prefs[key] }
+        lets keys = ['token', 'user', 'email']
+        for (let key of keys) { delete prefs[key] }
         prefs.save()
         console.log('user disconnected - come again soon 👻')
         return resolve()
