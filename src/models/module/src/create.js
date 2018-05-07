@@ -219,7 +219,10 @@ let createModuleFilePromise = (create) => {
   // active: 'active',
   // Select: 'Select'
   // in javascript, use only moduleClasses.active to target the class active
-}\n`
+}
+// instances variables must start with $_ and be declared and assigned all at once
+// variables in your codes you want the user to access to must start with $$_ and are called export variables
+\n`
       },
       {
         name: create.ssName,
