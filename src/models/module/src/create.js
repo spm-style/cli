@@ -205,7 +205,7 @@ let createModuleFilePromise = (create) => {
   <link rel="stylesheet" href="${create.ssName.endsWith('.scss') ? '.' : ''}${create.ssName.substring(0, create.ssName.lastIndexOf('.'))}.css">
 </head>
 <body>
-  <!-- SPM says hi :-D -->
+  <h1>Module ${create.name} successfully created !</h1>
   <script type="text/javascript" src="${create.jsName}"></script>
 </body>
 </html>\n`
