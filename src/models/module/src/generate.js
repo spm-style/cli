@@ -207,7 +207,7 @@ module.exports = (Program) => {
     .alias('g')
     .description(`to generate a module's new instance`)
     .arguments('<instanceName>')
-    .option('--assign', `to store the js instance in a variable declaration`)
+    .option('--no-assign', `to prevent from storing the js instance in a variable declaration`)
     .option('--scss', `if you use scss preprocessing language, css by default`)
     .option('--module-name <name>', `to target a specific module`)
     .option('--classes-rename', `to chose each class with your own syntax`)

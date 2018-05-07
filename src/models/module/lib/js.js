@@ -246,14 +246,18 @@ let generateInstancePromise = (generate) => {
       Fs.readFile(Path.join(generate.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.js`), 'utf8', (err, data) => {
         if (err && err.code !== 'ENOENT') { return reject(err) } else if (err) { data = '' }
         let path = Path.relative(Path.dirname(Path.join(generate.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.js`)), Path.join(generate.pathFinal, 'spm_modules', generate.moduleName, generate.jsonDependency.files.script))
-        if (generate.jsStandard) {
+        if (generate.jsStandard === 'modular') {
           if (data.indexOf(`import { ${generate.upperName} } from '${path}'\n`) === -1) {
             let startIndex = -1
             let endIndex = 0
             while ((startIndex = data.indexOf('import', startIndex + 1)) >= 0) {
-              if ((endIndex = data.indexOf('\'\n', startIndex)) === -1) { return reject(new Error('issue in instance file')) }
+              if ((endIndex = data.indexOf('\'\n', startIndex)) === -1) {
+                return reject(new Error('issue in instance file'))
+              } else {
+                endIndex += 2
+              }
             }
-            data = `${data.substring(0, endIndex + 2)}import { ${generate.upperName} } from '${path}'\n${data.substring(endIndex + 2)}`
+            data = `${data.substring(0, endIndex)}import { ${generate.upperName} } from '${path}'\n${data.substring(endIndex)}`
           }
         }
         let parameters = ''
