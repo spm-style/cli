@@ -3,6 +3,7 @@ let Program = require('commander')
 let CONST = require('./lib/const')
 
 Program
+.description('CLI for spm')
 .version(CONST.VERSION)
 .command('version', 'to display current version').alias('v')
 .command('user', 'for actions about users').alias('u')

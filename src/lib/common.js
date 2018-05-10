@@ -6,6 +6,7 @@ let Tar = require('tar')
 let Request = require('request')
 let CONST = require('./const')
 let Ncp = require('ncp')
+let Preferences = require('preferences')
 
 /* checks if a responsiveness array is correct */
 let checkCorrectResponsiveness = (responsiveness) => {
@@ -114,9 +115,14 @@ let downloadModuleSpmPromise = (name, version, targetPath, source = false) => {
     if (!Path.isAbsolute(targetPath)) { targetPath = Path.join(__dirname, targetPath) }
     Fs.mkdir(targetPath, err => {
       if (err && err.code !== 'EEXIST') { return reject(err) }
-      Request.get(`${CONST.PUBLISH_URL}/${name}/${version}${source ? '/clone' : ''}`)
+      Request.get({
+        url: `${CONST.PUBLISH_URL}/${name}/${version}${source ? '/clone' : ''}`,
+        headers: {
+          'Authorization': `bearer ${new Preferences(CONST.PREFERENCES).token}`
+        }
+      })
       .on('response', res => {
-        if (res.statusCode >= 400) { return reject(new Error(`${res.statusMessage} - CDN`)) }
+        if (res.statusCode >= 400) { return reject(new Error(`${res.statusMessage || res.message} - CDN`)) }
       })
       .on('error', reject)
       .pipe(

@@ -1,6 +1,7 @@
 let Fs = require('fs')
 let Path = require('path')
 let Request = require('request')
+let Preferences = require('preferences')
 let Js = require('../lib/js')
 let Css = require('../lib/css')
 let Html = require('../lib/html')
@@ -102,7 +103,12 @@ let getJsonPackageFromAPIPromise = (install) => {
   return new Promise((resolve, reject) => {
     let url = `${CONST.PACKAGE_URL}/install/${install.name}`
     if (install.version && install.version !== true) { url += `?version=${install.version}` }
-    Request(url, (err, response, body) => {
+    Request({
+      url,
+      headers: {
+        'Authorization': `bearer ${new Preferences(CONST.PREFERENCES).token}`
+      }
+    }, (err, response, body) => {
       try {
         body = JSON.parse(body)
         if (err) {

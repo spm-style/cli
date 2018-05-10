@@ -5,14 +5,16 @@ let Common = require('../../../lib/common')
 let Debug = require('../../../lib/debug')
 let CONST = require('../../../lib/const')
 
+// const events = ['load']
+const assignedEvents = ['onload'] // ( on + event name ?)
+
 /* using acorn to check if the script contains instructions and is correct */
 let parseProcessPromise = (publish) => {
   if (publish.debug) { Debug() }
   return new Promise((resolve, reject) => {
-    let table = Acorn.parse(publish.jsData)
     let moduleClassesFound = false
-    if (!table.body.length) { return reject(new Error(`missing script in ${publish.json.files.script}`)) }
-    for (let item of table.body) {
+    if (!publish.acorn.body.length) { return reject(new Error(`missing script in ${publish.json.files.script}`)) }
+    for (let item of publish.acorn.body) {
       if (item.type === 'VariableDeclaration') {
         for (let declaration of item.declarations) {
           if (declaration.id.name.startsWith(CONST.INSTANCE_PREFIX) && declaration.init === null) {
@@ -34,10 +36,66 @@ let parseProcessPromise = (publish) => {
   })
 }
 
+/* returns an array potentially containing an error and its location for query selectors */
+let errorQuerySelector = (publish, value) => {
+  let incorrectSelectors = []
+  if (value.type === 'CallExpression' && value.arguments &&
+    value.callee && value.callee.type === 'MemberExpression' &&
+    value.callee.property && value.callee.property && (value.callee.property.name === 'querySelector' || value.callee.property.name === 'querySelectorAll')) {
+    for (let arg of value.arguments) {
+      if (arg.type === 'Literal') {
+        incorrectSelectors.push(`incorrect ${value.callee.property.name} value ${arg.value} : must contain module's main class (${value.loc.start.line}:${value.loc.start.column})`)
+      } else if (arg.type === 'TemplateLiteral' || arg.type === 'BinaryExpression') {
+        let selectors = publish.jsData.substring(arg.start, arg.end)
+        for (let selector of selectors.split(',')) {
+          if (selector.indexOf('moduleClasses.') < 0 && selector.indexOf('moduleClasses[') < 0) {
+            incorrectSelectors.push(`incorrect ${value.callee.property.name} value ${selectors} : must contain module's main class (${value.loc.start.line}:${value.loc.start.column})`)
+          }
+        }
+      }
+    }
+  }
+  return incorrectSelectors
+}
+
+/* returns an array potentially containing an error and its location for events linked to window */
+let errorEvents = (value) => {
+  let incorrectEvents = []
+  if (value.type === 'MemberExpression' &&
+    value.object && value.object.name === 'window' &&
+    value.property && assignedEvents.includes(value.property.name)) {
+    incorrectEvents.push(`event ${value.property.name} attached to window : please use addEventListener instead (${value.loc.start.line}:${value.loc.start.column})`)
+  }
+  return incorrectEvents
+}
+
+/* recursive controls on script content */
+let spmControlRecursivePromise = (publish, value) => {
+  return new Promise((resolve, reject) => {
+    let promises = []
+    if (Array.isArray(value)) {
+      for (let item of value) { promises.push(spmControlRecursivePromise(publish, item)) }
+    } else if (value && typeof value === 'object') {
+      publish.spmControlErrors = publish.spmControlErrors.concat(errorQuerySelector(publish, value)).concat(errorEvents(value))
+      for (let item in value) { promises.push(spmControlRecursivePromise(publish, value[item])) }
+    }
+    Promise.all(promises)
+    .then(() => {
+      return resolve(publish)
+    })
+    .catch(reject)
+  })
+}
+
 /* all controls (query selectors, events, etc...) */
 let spmControlPromise = (publish) => {
   return new Promise((resolve, reject) => {
-    return resolve(publish)
+    spmControlRecursivePromise(publish, publish.acorn.body)
+    .then(() => {
+      if (publish.spmControlErrors.length) { return reject(new Error('\n' + publish.spmControlErrors.join('\n'))) }
+      return resolve(publish)
+    })
+    .catch(reject)
   })
 }
 
@@ -80,6 +138,8 @@ let fileCheckerPromise = (publish) => {
           }
         }
         publish.jsData = data
+        publish.acorn = Acorn.parse(publish.jsData, { locations: true })
+        publish.spmControlErrors = []
         spmControlPromise(publish)
         .then(parseProcessPromise)
         .then(() => {

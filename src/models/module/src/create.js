@@ -205,7 +205,9 @@ let createModuleFilePromise = (create) => {
   <link rel="stylesheet" href="${create.ssName.endsWith('.scss') ? '.' : ''}${create.ssName.substring(0, create.ssName.lastIndexOf('.'))}.css">
 </head>
 <body>
+
   <h1>Module ${create.name} successfully created !</h1>
+
   <script type="text/javascript" src="${create.jsName}"></script>
 </body>
 </html>\n`
@@ -286,7 +288,7 @@ module.exports = (Program) => {
     .option('--debug', 'to display debug logs')
     .action((name, options) => {
       if (!/^.{2,}$/.test(name) || !/^[a-zA-Z0-9_]*$/.test(name)) {
-        Program.on('--help', () => { console.log(Chalk.hex(CONST.WARNING_COLOR)('name should be longer than 2 characters, with no "-" or "_"')) })
+        Program.on('--help', () => { console.log(Chalk.hex(CONST.WARNING_COLOR)('name should be longer than 2 characters, only alphanumerical')) })
         Program.help()
         return reject(new Error('name should be longer than 2 characters, only alphanumerical'))
       } else if (options.version && typeof options.version !== 'function' && !/^[0-9]+[.][0-9]+[.][0-9]+$/.test(options.version)) {

@@ -1,5 +1,6 @@
 let Clear = require('clear')
 let Request = require('request')
+let Preferences = require('preferences')
 let Prompt = require('inquirer').prompt
 let CONST = require('../../../lib/const')
 let Debug = require('../../../lib/debug')
@@ -14,7 +15,10 @@ let searchRequestPromise = (pattern, options, page = 1) => {
     spinner.start()
     Request({
       url: `${url}?offset=${CONST.SEARCH_RESULTS}&page=${page}${pattern ? '&search=' + pattern : ''}`,
-      method: 'get'
+      method: 'get',
+      headers: {
+        'Authorization': `bearer ${new Preferences(CONST.PREFERENCES).token}`
+      }
     }, (err, res, body) => {
       if (err) { return reject(spinner.errorStop(err)) }
       try {

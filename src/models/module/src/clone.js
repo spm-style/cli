@@ -1,5 +1,6 @@
 let Path = require('path')
 let Request = require('request')
+let Preferences = require('preferences')
 let CONST = require('../../../lib/const')
 let Debug = require('../../../lib/debug')
 let Common = require('../../../lib/common')
@@ -12,7 +13,12 @@ let getJsonPackageFromAPIPromise = (clone) => {
       return resolve(clone)
     } else {
       let url = `${CONST.PACKAGE_URL}/install/${clone.name}`
-      Request(url, (err, response, body) => {
+      Request({
+        url,
+        headers: {
+          'Authorization': `bearer ${new Preferences(CONST.PREFERENCES).token}`
+        }
+      }, (err, response, body) => {
         try {
           body = JSON.parse(body)
           if (err) {

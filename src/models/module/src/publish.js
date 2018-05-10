@@ -70,7 +70,12 @@ let upRecursiveModuleNameSearchPromise = (publish, currentDirectory) => {
     if (!currentDirectory) {
       return reject(new Error(CONST.ERROR.SPM_MODULE_NOT_FOUND))
     } else if (currentDirectory.indexOf(publish.projectPath || CONST.USER_DIRECTORY) === -1) {
-      downRecursiveModuleNameSearchPromise(publish, publish.projectPath || CONST.USER_DIRECTORY).then(resolve).catch(reject)
+      downRecursiveModuleNameSearchPromise(publish, publish.projectPath || CONST.USER_DIRECTORY)
+      .then(res => {
+        if (!res) { return reject(new Error(`${publish.name} not found in your context`)) }
+        return resolve(res)
+      })
+      .catch(reject)
     } else {
       Common.getJsonFilePromise(Path.join(currentDirectory, CONST.MODULE_JSON_NAME))
       .then(json => {
@@ -153,7 +158,7 @@ let checkModuleJsonPromise = (publish) => {
       if (publish.json[key] === undefined || publish.json[key] === null || (keyMaps[key].regex && !keyMaps[key].regex.test(publish.json[key]))) { return reject(new Error(keyMaps[key].message)) }
     }
     if (!publish.json.responsive || !publish.json.responsive.length || !Common.checkCorrectResponsiveness(publish.json.responsive)) {
-      return reject(new Error(`incorrect responsive devices - use "spm module edit --responsive <devices>"\nwith one or several devices among 'watch', 'mobile', 'phablet', 'tablet', 'laptop', 'screenXl'`))
+      return reject(new Error(`incorrect responsive devices - use "spm module edit --responsive <devices>"\nwith one or several devices among "watch", "mobile", "phablet", "tablet", "laptop", "screenXl"`))
     }
     for (let moduleArray of arrays) {
       if (!publish.json[moduleArray] || !(publish.json[moduleArray] instanceof Array)) {
@@ -301,18 +306,19 @@ let checkPublicationContent = (publish) => {
       dom: {type: 'custom', value: publish.dom},
       responsiveness: publish.json.responsive,
       category: publish.json.category,
-      jsImports: publish.jsImports
+      jsImports: publish.jsImports,
+      public: publish.public
     }
     if (publish.json.readme) { publish.apiPackage.readme = publish.json.readme }
     if (publish.json.repository) { publish.apiPackage.repository = publish.json.repository }
     let incorrectKeys = []
     for (let key in publish.apiPackage) {
-      if (!publish.apiPackage[key] && !['responsiveness'].includes(key)) {
+      if (publish.apiPackage[key] === undefined && !['responsiveness'].includes(key)) {
         incorrectKeys.push(key)
       }
     }
     if (publish.apiPackage.responsiveness && !publish.apiPackage.responsiveness.length) { incorrectKeys.push('responsive') }
-    if (incorrectKeys.length) { return reject(new Error(`missing information: ${incorrectKeys.join(', ')} - please use spm module edit to update them`)) }
+    if (incorrectKeys.length) { return reject(new Error(`missing information: ${incorrectKeys.join(', ')} - please use spm module edit to update ${incorrectKeys.length > 1 ? 'them' : 'it'}`)) }
     return resolve(publish)
   })
 }
@@ -446,40 +452,45 @@ module.exports = (Program) => {
     .option('--html-checker', `to force the tool to fix conflicts between html files containing your main class`)
     .option('--no-js', `to indicate your module doesn't contain any javascript`)
     .option('--debug', 'to display debug logs')
-    .option('--force', 'to pubish without confirmation if information are correct')
+    .option('--force', 'to publish without confirmation if information are correct')
+    .option('--private', 'to publish a private module')
     .action((moduleName, options) => {
-      if (options.version && typeof options.version !== 'function' && !/^[0-9]+[.][0-9]+[.][0-9]+$/.test(options.version)) {
-        Program.on('--help', () => { console.log(Chalk.hex(CONST.WARNING_COLOR)('please enter a valid version number (x.x.x)')) })
-        Program.help()
-      } else {
-        let publish = new Models.Publish(moduleName, options)
-        testProjectScopePromise(publish)
-        .then(getModuleJsonPromise)
-        .then(checkModuleJsonPromise)
-        .then(prepareWorkspacePromise)
-        .then(checkModuleFilesPromise)
-        .then(confirmationPublishPromise)
-        .then(promptUserPromise)
-        .then(createTgzPromise)
-        .then(sendPublicationToRegistryPromise)
-        .then(cleanWorkspacePromise)
-        .then(Common.displayMessagesPromise)
-        .then(resolve)
-        .catch(err => {
-          cleanWorkspacePromise(publish)
-          .then(() => {
-            if (publish.path) {
-              if (err.message) {
-                err.message = err.message.replace(Path.join(publish.path, '.tmp_spm', '.sass_spm', 'result.css'), 'resulting of spm checks').replace(Path.join(publish.path, '.tmp_spm'), publish.path)
-              } else {
-                err = err.replace(Path.join(publish.path, '.tmp_spm', '.sass_spm', 'result.css'), 'resulting of spm checks').replace(Path.join(publish.path, '.tmp_spm'), publish.path)
-              }
-            }
-            return reject(err)
-          })
-          .catch(reject)
-        })
+      if (moduleName && moduleName.includes('@')) {
+        if (!/^[0-9]+[.][0-9]+[.][0-9]+$/.test(moduleName.substring(moduleName.indexOf('@') + 1))) {
+          Program.on('--help', () => { console.log(Chalk.hex(CONST.WARNING_COLOR)('please enter a valid version number (x.x.x)')) })
+          Program.help()
+        } else {
+          options.version = moduleName.substring(moduleName.indexOf('@') + 1)
+          moduleName = moduleName.substring(0, moduleName.indexOf('@'))
+        }
       }
+      let publish = new Models.Publish(moduleName, options)
+      testProjectScopePromise(publish)
+      .then(getModuleJsonPromise)
+      .then(checkModuleJsonPromise)
+      .then(prepareWorkspacePromise)
+      .then(checkModuleFilesPromise)
+      .then(confirmationPublishPromise)
+      .then(promptUserPromise)
+      .then(createTgzPromise)
+      .then(sendPublicationToRegistryPromise)
+      .then(cleanWorkspacePromise)
+      .then(Common.displayMessagesPromise)
+      .then(resolve)
+      .catch(err => {
+        cleanWorkspacePromise(publish)
+        .then(() => {
+          if (publish.path) {
+            if (err.message) {
+              err.message = err.message.replace(Path.join(publish.path, '.tmp_spm', '.sass_spm', 'result.css'), 'resulting of spm checks').replace(Path.join(publish.path, '.tmp_spm'), publish.path)
+            } else {
+              err = err.replace(Path.join(publish.path, '.tmp_spm', '.sass_spm', 'result.css'), 'resulting of spm checks').replace(Path.join(publish.path, '.tmp_spm'), publish.path)
+            }
+          }
+          return reject(err)
+        })
+        .catch(reject)
+      })
     })
   })
 }

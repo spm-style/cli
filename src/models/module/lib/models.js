@@ -86,6 +86,7 @@ class Publish {
     this.access = options.access
     this.noJs = options.js === false
     this.htmlChecker = options.htmlChecker
+    this.public = options.private !== true
     this.jsImports = []
     this.warnings = []
     this.successes = []
