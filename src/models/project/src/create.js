@@ -85,7 +85,7 @@ let createProjectPromise = (create) => {
         message: 'chose your js standard : legacy only recommended for native script',
         type: 'list',
         choices: ['legacy', 'modular'],
-        default: 'modular'
+        default: 'legacy'
       }
     }
     let questions = []
@@ -140,7 +140,20 @@ let createProjectFilePromise = (create) => {
         name: create.htmlName,
         toCreate: create.options.htmlFile,
         toForce: false,
-        content: ''
+        content: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>${create.name}</title>
+  <link rel="stylesheet" href="${create.ssName.endsWith('.scss') ? '.' : ''}${create.ssName.substring(0, create.ssName.lastIndexOf('.'))}.css">
+</head>
+<body>
+
+  <h1>Project ${create.name} successfully created !</h1>
+
+  <script type="text/javascript" src="${create.jsName}"></script>
+</body>
+</html>\n`
       },
       {
         name: create.jsName,

@@ -31,7 +31,7 @@ class Create {
       ssName: `style.${options.style || 'css'}`,
       styleguideName: `styleguide.${options.style || 'css'}`,
       description: '',
-      jsStandard: 'modular',
+      jsStandard: 'legacy',
       debug: false,
       default: false,
       force: false

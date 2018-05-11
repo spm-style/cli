@@ -353,7 +353,6 @@ let defineParametersOrderPromise = (install) => {
 /* updates main style file with instance import */
 let updateStyleFilePromise = (item) => {
   return new Promise((resolve, reject) => {
-    console.log(item.pathFinal, item.jsonFile.files.style)
     Fs.readFile(Path.join(item.pathFinal, item.jsonFile.files.style), 'utf8', (err, data) => {
       if (err && err.code !== 'ENOENT') { return reject(err) }
       let path = Path.relative(Path.dirname(Path.join(item.pathFinal, item.jsonFile.files.style)), Path.join(item.pathFinal, CONST.INSTANCE_FOLDER, item.jsonFile.style === 'scss' ? CONST.INSTANCE_FOLDER + '.scss' : '.' + CONST.INSTANCE_FOLDER + '.css'))
@@ -442,7 +441,7 @@ let generateInstancePromise = (generate) => {
       try {
         if (err) { return reject(err) }
         let parameters = ''
-        let i = data.indexOf('@mixin spm-')
+        let i = data.indexOf(`@mixin ${generate.moduleName}`)
         i = data.indexOf('(', i)
         let j = data.indexOf(')', i)
         for (let parameter of data.substring(i + 1, j).split(',')) {
@@ -463,7 +462,7 @@ let generateInstancePromise = (generate) => {
           Fs.writeFile(Path.join(generate.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.scss`), data, err => {
             if (err) { return reject(err) }
             if (generate.style === 'css') {
-              convertScssToCss(Path.join(generate.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.scss`), Path.join(generate.pathFinal, CONST.INSTANCE_FOLDER, `€{CONST.INSTANCE_FOLDER}.css`))
+              convertScssToCss(Path.join(generate.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.scss`), Path.join(generate.pathFinal, CONST.INSTANCE_FOLDER, `.${CONST.INSTANCE_FOLDER}.css`))
               .then(res => {
                 generate.successes.push(`css instance ${generate.nickname} of module ${generate.moduleName} has been generated`)
                 updateStyleFilePromise(generate)
