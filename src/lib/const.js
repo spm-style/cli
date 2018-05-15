@@ -2,7 +2,7 @@ const BASE_URL = process.env.BASE_SPM_API_URL || 'https://api.spm-style.com'
 const userDirectory = process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME']
 
 module.exports = {
-  VERSION: '0.1.15',
+  VERSION: '0.1.31',
   ERROR_COLOR: '#ff4444',
   WARNING_COLOR: '#febc07',
   SUCCESS_COLOR: '#61F661',

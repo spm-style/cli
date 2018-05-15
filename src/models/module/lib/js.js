@@ -195,7 +195,7 @@ let processInstancesPromise = (install) => {
         for (let dependency of install.children) {
           if (dependency.added) {
             let parameters = []
-            for (let instanceVar of dependency.jsonFile.js.instancesVar) { parameters.push(instanceVar.value) }
+            for (let instanceVar of dependency.jsonFile.js.instancesVar) { parameters.push(`${instanceVar.type === 'string' ? '\'' : ''}${instanceVar.value}${instanceVar.type === 'string' ? '\'' : ''}`) }
             for (let moduleClass of dependency.jsonFile.classes) {
               if (moduleClass.js) { parameters.push(`'${moduleClass.name}'`) }
             }
@@ -206,7 +206,7 @@ let processInstancesPromise = (install) => {
         for (let dependency of install.children) {
           if (dependency.added) {
             let parameters = []
-            for (let instanceVar of dependency.jsonFile.js.instancesVar) { parameters.push(instanceVar.value) }
+            for (let instanceVar of dependency.jsonFile.js.instancesVar) { parameters.push(`${instanceVar.type === 'string' ? '\'' : ''}${instanceVar.value}${instanceVar.type === 'string' ? '\'' : ''}`) }
             data = `import { ${dependency.upperName} } from '../spm_modules/${dependency.name}/${dependency.files.script}'\n${data}`
             data += `export let ${dependency.lowerName} = new ${dependency.upperName}(${parameters.join(',')})\n`
           }
