@@ -322,7 +322,7 @@ let generateInstancePromise = (generate) => {
         }
         let parameters = ''
         for (let jsVar of generate.jsonDependency.js.instancesVar) {
-          parameters += `${generate.variablesMap[jsVar.name].to || generate.variablesMap[jsVar.name].from},`
+          parameters += `${jsVar.type === 'string' ? '\'' : ''}${generate.variablesMap[jsVar.name].to || generate.variablesMap[jsVar.name].from}${jsVar.type === 'string' ? '\'' : ''},`
         }
         for (let moduleClass of generate.jsonDependency.classes) {
           if (moduleClass.js) { parameters += `'${generate.nicknames[moduleClass.name]}',` }

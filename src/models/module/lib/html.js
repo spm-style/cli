@@ -363,7 +363,7 @@ let generateInstancePromise = (generate) => {
       if ((index = data.indexOf('</body>')) === -1) { return resolve(generate) }
       let path = Path.relative(Path.dirname(Path.join(generate.pathFinal, generate.jsonFile.files.index)), Path.join(generate.pathFinal, CONST.INSTANCE_FOLDER, `${CONST.INSTANCE_FOLDER}.js`))
       let jsScriptType = generate.jsStandard === 'modular' ? 'type="module" ' : ''
-      if (data.indexOf(`<script ${jsScriptType}src="${path}"></script>\n`) !== -1) {
+      if (data.indexOf(`<script ${jsScriptType}src="${path}"></script>\n`) === -1) {
         start = index
         while (start !== -1 && data[start] !== '\n') { start-- }
         if (start === -1) { return resolve(generate) }
