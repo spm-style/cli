@@ -88,14 +88,18 @@ let selectModulePromise = (generate) => {
       Common.updateRegistryModulesPromise(generate)
       .then(() => {
         if (!generate.moduleChoices.length) { return reject(new Error('no module found in your project')) }
-        if (generate.name) {
-          if (!generate.moduleChoices.includes(generate.name)) {
+        if (generate.name || generate.moduleChoices.length === 1) {
+          if (generate.name && !generate.moduleChoices.includes(generate.name)) {
             return reject(new Error(`module ${generate.name} not found, please install it with "spm install ${generate.name}"`))
           } else {
-            generate.moduleName = generate.name
-            generate.upperName = Common.firstLetterUpperCase(generate.name)
+            generate.moduleName = generate.name || generate.moduleChoices[0]
+            generate.upperName = Common.firstLetterUpperCase(generate.moduleName)
             if (generate.assign && generate.nickname === generate.upperName) { return reject(new Error(`variable ${generate.nickname} already assigned as module Class declaration`)) }
-            return resolve(generate)
+            Common.getJsonFilePromise(Path.join(generate.pathModules, generate.moduleName, CONST.MODULE_JSON_NAME))
+            .then(json => {
+              generate.jsonDependency = json
+              return resolve(generate)
+            })
           }
         } else {
           promptChoiceInListPromise(generate.moduleChoices, 'select the targeted module')
@@ -125,7 +129,7 @@ let replacePrefix = (str, oldPrefix, newPrefix) => {
 
 /* lists, prompts and customizes variables values and names */
 let customizeVariablesPromise = (generate) => {
-  if (generate.debug) { Debug() }
+  if (generate.debug) { Debug(generate) }
   return new Promise((resolve, reject) => {
     generate.variablesMap = {}
     generate.nicknames = {}
