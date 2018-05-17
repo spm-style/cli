@@ -145,7 +145,7 @@ let checkModuleJsonPromise = (publish) => {
         message: `missing description - use 'spm module edit --description  <description>'`
       },
       category: {
-        regex: false,
+        regex: /^.{2,}$/,
         message: `missing category - use 'spm module edit --category <category>'`
       },
       license: {
