@@ -24,7 +24,7 @@
   "author": "boblee",
   "license": "ISC",
   "dependencies": {
-    "acorn": "^5.4.1",
+    "acorn": "^7.1.1",
     "chalk": "^2.3.0",
     "clear": "0.0.1",
     "commander": "^2.14.1",
