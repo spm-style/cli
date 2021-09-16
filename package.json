@@ -30,7 +30,7 @@
     "commander": "^2.14.1",
     "figlet": "^1.2.0",
     "html-validator": "git+https://git@github.com/ScandalousMan/html-validator.git",
-    "inquirer": "^5.1.0",
+    "inquirer": "^7.0.5",
     "ncp": "^2.0.0",
     "node-sass": "git+https://git@github.com/ScandalousMan/node-sass.git",
     "ora": "^1.4.0",
