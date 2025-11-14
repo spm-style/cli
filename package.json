@@ -34,7 +34,7 @@
     "ncp": "^2.0.0",
     "node-sass": "git+https://git@github.com/ScandalousMan/node-sass.git",
     "ora": "^1.4.0",
-    "preferences": "^1.0.2",
+    "preferences": "^2.0.2",
     "request": "^2.83.0",
     "tar": "^4.3.3"
   },
